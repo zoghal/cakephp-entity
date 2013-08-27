@@ -16,7 +16,7 @@ class EntityModel extends EntityAppModel {
  *	@param $data Hash to be converted. If omitted, $this->data will be converted.
  *	@return Entity object
  */
-	protected function _convertToEntity($data) {
+	public function convertToEntity($data) {
 		if (is_null($data) || empty($data[$this->alias]['id'])) {
 			return null;
 		}
@@ -24,14 +24,14 @@ class EntityModel extends EntityAppModel {
 		return $this->entity($data);
 	}
 
-	protected function _convertToEntities($list) {
+	public function convertToEntities($list) {
 		if ($list && !Hash::numeric(array_keys($list))) {
-			return $this->_convertToEntity($list);
+			return $this->convertToEntity($list);
 		}
 
 		$result = array();
 		foreach ($list as $data) {
-			$result[] = $this->_convertToEntity($data);
+			$result[] = $this->convertToEntity($data);
 		}
 		return $result;
 	}
@@ -68,7 +68,7 @@ class EntityModel extends EntityAppModel {
 		$results = parent::afterFind($results, $primary);
 
 		if ($this->entity && $primary && is_array($results)) {
-			$results = $this->_convertToEntities($results);
+			$results = $this->convertToEntities($results);
 		}
 
 		$this->_restoreEntityState();
@@ -106,7 +106,7 @@ class EntityModel extends EntityAppModel {
 		$return = parent::__call($method, $params);
 
 		if ($entity && !is_null($return)) {
-			$return = $this->_convertToEntities($return);
+			$return = $this->convertToEntities($return);
 		}
 
 		return $return;
