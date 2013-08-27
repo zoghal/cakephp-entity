@@ -1,0 +1,38 @@
+{
+  "name":"josegonzalez/cakephp-entity",
+  "version": "1.0.0",
+  "description":"Use model objects/classes instead of arrays in your CakePHP application",
+  "type":"cakephp-plugin",
+  "keywords":[
+    "cakephp",
+    "entity",
+    "objects",
+    "orm",
+    "model",
+    "models"
+  ],
+  "homepage":"https://github.com/josegonzalez/cakephp-entity",
+  "license":"MIT",
+  "authors":[
+    {
+      "name":"Yosuke Basuke Suzuki",
+      "role":"Author",
+      "homepage":"http://basuke.com/"
+    },
+    {
+      "name":"Jose Diaz-Gonzalez",
+      "role":"Maintainer",
+      "homepage":"https://josediazgonzalez.com"
+    }
+  ],
+  "support":{
+    "source":"https://github.com/josegonzalez/cakephp-entity",
+    "issues":"https://github.com/josegonzalez/cakephp-entity/issues"
+  },
+  "require":{
+    "composer/installers":"*"
+  },
+  "extra": {
+    "installer-name": "Entity"
+  }
+}

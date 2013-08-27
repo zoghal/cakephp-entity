@@ -38,6 +38,14 @@ In your `Plugin` directory type:
 
     git clone -b master git://github.com/josegonzalez/cakephp-entity.git Entity
 
+_[Composer]_
+
+Add the following to your `composer.json`:
+
+    "cakephp-entity": "1.0.0"
+
+And then run the `composer update` command to install the dependency.
+
 ### Enable plugin
 
 In 2.0 you need to enable the plugin your `app/Config/bootstrap.php` file:
