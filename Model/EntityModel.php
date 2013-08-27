@@ -2,6 +2,7 @@
 App::uses('EntityAppModel', 'Entity.Model');
 App::uses('Entity', 'Entity.Model');
 App::uses('AppEntity', 'Entity.Model');
+App::uses('Hash', 'Utility');
 
 class EntityModel extends EntityAppModel {
 
@@ -24,7 +25,7 @@ class EntityModel extends EntityAppModel {
 	}
 
 	protected function _convertToEntities($list) {
-		if ($list && !Set::numeric(array_keys($list))) {
+		if ($list && !Hash::numeric(array_keys($list))) {
 			return $this->_convertToEntity($list);
 		}
 
@@ -172,7 +173,7 @@ class EntityModel extends EntityAppModel {
 
 		$Model = $this->getAssociatedModel($alias);
 		if ($Model) {
-			if (is_array($value) && (empty($value) || Set::numeric(array_keys($value)))) {
+			if (is_array($value) && (empty($value) || Hash::numeric(array_keys($value)))) {
 				$result = array();
 				foreach ($value as $columns) {
 					$data = array($alias => $columns);

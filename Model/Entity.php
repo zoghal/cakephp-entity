@@ -1,5 +1,9 @@
 <?php
 
+App::uses('Object', 'Core');
+App::uses('Hash', 'Utility');
+App::uses('Set', 'Utility');
+
 class Entity extends Object implements ArrayAccess {
 
 	// @codingStandardsIgnoreStart
@@ -141,7 +145,7 @@ class Entity extends Object implements ArrayAccess {
 				continue;
 			}
 
-			if (Set::numeric(array_keys($data[$objectName][$name]))) {
+			if (Hash::numeric(array_keys($data[$objectName][$name]))) {
 				// has many association
 
 				$list = $data[$objectName][$name];
