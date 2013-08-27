@@ -66,7 +66,7 @@ class Entity extends Object implements ArrayAccess {
 		foreach ($data as $modelClass => $values) {
 			if ($modelClass == $model->alias) {
 				/* if the data is array of values for my class,
-				   use them as a property */
+					 use them as a property */
 
 				foreach ($values as $key => $val) {
 					$model->assignProperty($this, $key, $val);
@@ -103,25 +103,29 @@ class Entity extends Object implements ArrayAccess {
 		return (strval($other->id) == strval($this->id));
 	}
 
-	public function save($fields = null) {
-		$Model = $this->getModel();
-		$Model->id = isset($this->id) ? $this->id : null;
-
-		if ($fields) {
-			foreach ((array)$fields as $field) {
-				$value = isset($this->{$field}) ? $this->{$field} : null;
-				$ok = $Model->saveField($field, $value);
-				if (!$ok) {
-					return false;
-				}
-			}
-			return true;
-		} else {
-			$Model->create();
-
-			$data = $this->toArray();
-			return $Model->save($data);
+	public function save($validate = true, $fields = null) {
+		$fieldList = array();
+		if ($fields !== null) {
+			$fieldList = (array)$fields;
 		}
+
+		$Model = $this->getModel();
+		$Model->create();
+		$Model->id = isset($this->id) ? $this->id : null;
+		if ($Model->id === false) {
+			$Model->id = null;
+		}
+
+		$id = $Model->id;
+		$saved = $Model->save($this->toArray(), $validate, $fieldList);
+		if (!$saved) {
+			return false;
+		}
+
+		if ($id === null) {
+			$this->id = $Model->getLastInsertID();
+		}
+		return $saved;
 	}
 
 	// Magic actions =========================================
