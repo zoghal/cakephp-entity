@@ -17,6 +17,8 @@ class Entity extends Object implements ArrayAccess {
 
 	protected $_modelClass;
 
+	protected $_deleted = false;
+
 	protected static $_modifier = null;
 
 	protected static $_modifierMethods = null;
@@ -104,6 +106,10 @@ class Entity extends Object implements ArrayAccess {
 	}
 
 	public function save($validate = true, $fields = null) {
+		if ($this->_deleted) {
+			return false;
+		}
+
 		$fieldList = array();
 		if ($fields !== null) {
 			$fieldList = (array)$fields;
@@ -128,6 +134,63 @@ class Entity extends Object implements ArrayAccess {
 		return $saved;
 	}
 
+	public function update($values = array()) {
+		if ($this->_deleted) {
+			return false;
+		}
+
+		if (empty($values)) {
+			return false;
+		}
+
+		$Model = $this->getModel();
+		$Model->id = isset($this->id) ? $this->id : null;
+		if ($Model->id === false || $Model->id === null) {
+			return false;
+		}
+
+		$updated = $Model->updateAll($values, array($Model->primaryKey => $Model->id));
+		if (!$updated) {
+			return false;
+		}
+
+		foreach ($values as $key => $val) {
+			$Model->assignProperty($this, $key, $val);
+		}
+
+		return true;
+	}
+
+	public function delete($cascade = true) {
+		if ($this->_deleted) {
+			return false;
+		}
+
+		$Model = $this->getModel();
+		$Model->id = isset($this->id) ? $this->id : null;
+		if ($Model->id === false || $Model->id === null) {
+			return false;
+		}
+
+		$deleted = $Model->delete($Model->id, $cascade = true);
+		if ($deleted) {
+			$this->_deleted = true;
+		}
+
+		return $deleted;
+	}
+
+	public function invalidate($field, $value = true) {
+		$Model = $this->getModel();
+		return $Model->invalidate($field, $value);
+	}
+
+	public function validates($options = array()) {
+		$Model = $this->getModel();
+		$Model->set($this->toArray());
+		return $Model->validates($options);
+	}
+
 	// Magic actions =========================================
 
 	public function __toString() {
@@ -138,6 +201,27 @@ class Entity extends Object implements ArrayAccess {
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	public function fromArray($data) {
+		$Model = $this->getModel();
+
+		if (Hash::maxDimensions($data) === 1) {
+			$data = array($Model->alias => $data);
+		}
+
+		foreach ($data as $modelClass => $values) {
+			if ($modelClass == $Model->alias) {
+				// if the data is array of values for my class, use them as a property
+				foreach ($values as $key => $val) {
+					$Model->assignProperty($this, $key, $val);
+				}
+			} else {
+				// if not for my class, assign as another entity
+
+				$Model->assignProperty($this, $modelClass, $values);
+			}
+		}
 	}
 
 	public function toArray() {
