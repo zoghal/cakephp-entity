@@ -1,68 +1,70 @@
 <?php
 
 class Query extends Object implements ArrayAccess, IteratorAggregate, Countable {
-	static protected $defaults = array();
-	
-	static public function setDefaultOptions($Model, $options = array()) {
-		self::$defaults[$Model->alias] = $options;
+
+	public $type;
+
+	protected $_Model;
+
+	protected $_options;
+
+	protected static $_defaults = array();
+
+	public static function setDefaultOptions($Model, $options = array()) {
+		self::$_defaults[$Model->alias] = $options;
 	}
-	
-	static public function defaultOptions($Model) {
-		if (isset(self::$defaults[$Model->alias])) {
-			return self::$defaults[$Model->alias];
+
+	public static function defaultOptions($Model) {
+		if (isset(self::$_defaults[$Model->alias])) {
+			return self::$_defaults[$Model->alias];
 		}
-		
+
 		return array();
 	}
-	
-	protected $Model;
-	protected $options;
-	public $type;
-	
+
 	public function __construct($Model, $type, $options = array(), $default = true) {
-		$this->Model = $Model;
+		$this->_Model = $Model;
 		$this->type = $type;
-		$this->options = $options;
-		
+		$this->_options = $options;
+
 		if ($default) {
-			$this->options += self::defaultOptions($Model);
+			$this->_options += self::defaultOptions($Model);
 		}
 	}
-	
+
 	public function result() {
-		return $this->Model->find($this->type, $this->options);
+		return $this->_Model->find($this->type, $this->_options);
 	}
-	
+
 	public function type($newType) {
-		return new Query($this->Model, $newType, $this->options, false);
+		return new Query($this->_Model, $newType, $this->_options, false);
 	}
-	
-// 	public function __call($method, $args) {
-// 		return new Query($this->Model, $newType, $this->options, false);
-// 	}
-// 	
+
+	// public function __call($method, $args) {
+	// 	return new Query($this->_Model, $newType, $this->_options, false);
+	// }
+
 	public function offsetExists($key) {
-		return array_key_exists($key, $this->options);
+		return array_key_exists($key, $this->_options);
 	}
-	
+
 	public function offsetGet($key) {
-		return $this->options[$key];
+		return $this->_options[$key];
 	}
-	
+
 	public function offsetSet($key, $value) {
-		$this->options[$key] = $value;
+		$this->_options[$key] = $value;
 	}
-	
+
 	public function offsetUnset($key) {
-		unset($this->options[$key]);
+		unset($this->_options[$key]);
 	}
-	
+
 	public function getIterator() {
 		return $this->result();
 	}
-	
+
 	public function count($total = false) {
 	}
-}
 
-?>
+}

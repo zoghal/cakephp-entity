@@ -1,0 +1,46 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+
+notifications:
+  email: false
+
+env:
+  - DB=mysql CAKE_VERSION=master
+  - DB=mysql CAKE_VERSION=2.4
+
+matrix:
+  include:
+    - php: 5.4
+      env:
+        - DB=mysql CAKE_VERSION=master PHPCS=1
+
+before_script:
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test;'; fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test2;'; fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test3;'; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE SCHEMA test2;' -U postgres -d cakephp_test; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE SCHEMA test3;' -U postgres -d cakephp_test; fi"
+
+  - sh -c "if [ '$PHPCS' = '1' ]; then pear channel-discover pear.cakephp.org; fi"
+  - sh -c "if [ '$PHPCS' = '1' ]; then pear install --alldeps cakephp/CakePHP_CodeSniffer; fi"
+
+  - phpenv rehash
+  - set +H
+
+  - cd ..
+  - git clone git://github.com/cakephp/cakephp.git cakephp --branch $CAKE_VERSION --depth 1
+  - cd cakephp
+  - chmod -R 777 app/tmp
+  - mkdir -p build/logs
+
+  - mv ../cakephp-entity app/Plugin/Entity
+  - mv app/Plugin/Entity/.resources/bootstrap.php app/Config/bootstrap.php
+  - mv app/Plugin/Entity/.resources/database.php app/Config/database.php
+
+script:
+  - sh -c "if [ '$PHPCS' != '1' ]; then ./lib/Cake/Console/cake test Entity AllEntity --stderr; else phpcs -p --ignore='*/Test/*' --extensions=php --standard=CakePHP ./app/Plugin/Entity; fi"
