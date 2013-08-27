@@ -227,15 +227,22 @@ class Entity extends Object implements ArrayAccess {
 	public function toArray() {
 		$data = Set::reverse($this);
 
+		$Model = $this->getModel();
+		$schema = $Model->schema();
+
 		$objectName = $this->_name;
 		foreach (array_keys($data[$objectName]) as $name) {
 			if (!is_array($data[$objectName][$name])) {
 				continue;
 			}
 
-			if (Hash::numeric(array_keys($data[$objectName][$name]))) {
-				// has many association
+			// Skip array fields that are in this model's schema
+			if (isset($schema[$name])) {
+				continue;
+			}
 
+			// has many association
+			if (Hash::numeric(array_keys($data[$objectName][$name]))) {
 				$list = $data[$objectName][$name];
 				unset($data[$objectName][$name]);
 
@@ -247,14 +254,13 @@ class Entity extends Object implements ArrayAccess {
 					}
 					$data[$name][] = $sub;
 				}
-			} else {
-				// has one association
-
-				$sub = $data[$objectName][$name];
-				unset($data[$objectName][$name]);
-
-				$data[$name] = $sub;
+				continue;
 			}
+
+			// has one association
+			$sub = $data[$objectName][$name];
+			unset($data[$objectName][$name]);
+			$data[$name] = $sub;
 		}
 
 		return $data;
