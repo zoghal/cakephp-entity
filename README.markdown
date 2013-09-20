@@ -1,4 +1,6 @@
-# CakePHP Entity Plugin [![Build Status](https://travis-ci.org/josegonzalez/cakephp-entity.png?branch=master)](https://travis-ci.org/josegonzalez/cakephp-entity)
+[![Build Status](https://travis-ci.org/josegonzalez/cakephp-entity.png?branch=master)](https://travis-ci.org/josegonzalez/cakephp-entity) [![Coverage Status](https://coveralls.io/repos/josegonzalez/cakephp-entity/badge.png?branch=master)](https://coveralls.io/r/josegonzalez/cakephp-entity?branch=master) [![Total Downloads](https://poser.pugx.org/josegonzalez/cakephp-entity/d/total.png)](https://packagist.org/packages/josegonzalez/cakephp-entity) [![Latest Stable Version](https://poser.pugx.org/josegonzalez/cakephp-entity/v/stable.png)](https://packagist.org/packages/josegonzalez/cakephp-entity)
+
+# CakePHP Entity Plugin
 
 ## Background
 
@@ -16,6 +18,18 @@ Originally: https://github.com/kanshin/CakeEntity
 * Patience
 
 ## Installation
+
+_[Using [Composer](http://getcomposer.org/)]_
+
+Add the plugin to your project's `composer.json` - something like this:
+
+	{
+		"require": {
+			"josegonzalez/cakephp-entity": "dev-master"
+		}
+	}
+
+Because this plugin has the type `cakephp-plugin` set in it's own `composer.json`, composer knows to install it inside your `/Plugins` directory, rather than in the usual vendors file. It is recommended that you add `/Plugins/Upload` to your .gitignore file. (Why? [read this](http://getcomposer.org/doc/faqs/should-i-commit-the-dependencies-in-my-vendor-directory.md).)
 
 _[Manual]_
 

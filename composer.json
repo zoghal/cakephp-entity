@@ -15,14 +15,15 @@
   "license":"MIT",
   "authors":[
     {
+      "name": "Jose Gonzalez",
+      "email": "email@josediazgonzalez.com",
+      "homepage": "http://josediazgonzalez.com",
+      "role": "Maintainer"
+    },
+    {
       "name":"Yosuke Basuke Suzuki",
       "role":"Author",
       "homepage":"http://basuke.com/"
-    },
-    {
-      "name":"Jose Diaz-Gonzalez",
-      "role":"Maintainer",
-      "homepage":"https://josediazgonzalez.com"
     }
   ],
   "support":{
