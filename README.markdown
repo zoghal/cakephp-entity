@@ -29,7 +29,7 @@ Add the plugin to your project's `composer.json` - something like this:
 		}
 	}
 
-Because this plugin has the type `cakephp-plugin` set in it's own `composer.json`, composer knows to install it inside your `/Plugins` directory, rather than in the usual vendors file. It is recommended that you add `/Plugins/Upload` to your .gitignore file. (Why? [read this](http://getcomposer.org/doc/faqs/should-i-commit-the-dependencies-in-my-vendor-directory.md).)
+Because this plugin has the type `cakephp-plugin` set in it's own `composer.json`, composer knows to install it inside your `/Plugins` directory, rather than in the usual vendors file. It is recommended that you add `/Plugins/Entity` to your .gitignore file. (Why? [read this](http://getcomposer.org/doc/faqs/should-i-commit-the-dependencies-in-my-vendor-directory.md).)
 
 _[Manual]_
 
@@ -96,8 +96,8 @@ $entity = $this->Post->find('all', array(
     'entity' => true,
 ));
 ```
-Now the `$result` includes the array of objects (entities).
 
+Now the `$result` includes the array of objects (entities).
 
 ### Entity class
 
@@ -125,7 +125,6 @@ class PostEntity extends Entity {
 
 ### Array access for Entity object
 
-
 Entity's property can be accessed using array syntax:
 
     echo $post['title']; // == $post->title
@@ -142,7 +141,6 @@ Array access introduces two important feature:
 ### For more information
 
 [Introducing CakeEntity (PHP study in Tokyo 10/1/2011)](http://www.slideshare.net/basuke/introducing-cakeentity-9496875)
-
 
 ## License
 
