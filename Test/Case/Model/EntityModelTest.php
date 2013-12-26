@@ -1,15 +1,17 @@
 <?php
 App::uses('EntityModel', 'Entity.Model');
 App::uses('Entity', 'Entity.Model');
+App::uses('AppEntity', 'Entity.Model/Entity');
 
 /**
  *	Models
  *
- *  Author --many--> Post --one---> PostImage
- *                        --many--> PostComment
- *                        --many--> PostStar (not EntityModel)
+ *  Author --many--> Post --one---> Image
+ *                        --many--> Comment
+ *                        --many--> Star (not EntityModel)
  *
  */
+
 
 class TestEntityModel extends EntityModel {
 
@@ -27,14 +29,14 @@ class Author extends TestEntityModel {
 
 	public $hasOne = array(
 		'Image' => array(
-			'className' => 'PostImage',
+			'className' => 'Image',
 		),
 	);
 
 	public $hasMany = array(
 		'Post',
 		'Comment' => array(
-			'className' => 'PostComment',
+			'className' => 'Comment',
 		),
 	);
 
@@ -50,16 +52,16 @@ class Post extends TestEntityModel {
 
 	public $hasOne = array(
 		'Image' => array(
-			'className' => 'PostImage',
+			'className' => 'Image',
 		),
 	);
 
 	public $hasMany = array(
 		'Comment' => array(
-			'className' => 'PostComment',
+			'className' => 'Comment',
 		),
 		'Star' => array(
-			'className' => 'PostStar',
+			'className' => 'Star',
 		),
 	);
 
@@ -100,19 +102,9 @@ class Post extends TestEntityModel {
 
 }
 
-class PostImage extends TestEntityModel {
+class Image extends TestEntityModel {
 
-	public $name = 'PostImage';
-
-	public $belongsTo = array(
-		'Post',
-	);
-
-}
-
-class PostComment extends TestEntityModel {
-
-	public $name = 'PostComment';
+	public $name = 'Image';
 
 	public $belongsTo = array(
 		'Post',
@@ -120,9 +112,19 @@ class PostComment extends TestEntityModel {
 
 }
 
-class PostStar extends AppModel {
+class Comment extends TestEntityModel {
 
-	public $name = 'PostStar';
+	public $name = 'Comment';
+
+	public $belongsTo = array(
+		'Post',
+	);
+
+}
+
+class Star extends AppModel {
+
+	public $name = 'Star';
 
 	public $useTable = false;
 
@@ -136,60 +138,17 @@ class PostStar extends AppModel {
  *	Entities
  */
 
-class AuthorEntity extends Entity {
+class AuthorEntity extends AppEntity {
 
 }
 
-class PostEntity extends Entity {
-
-	// allows access of 'func2'.
-	static public $allows = array('func2');
-
-	public function allows() {
-		return self::$allows;
-	}
-
-/**
- *	Function with public property is ok to access.
- */
-	public $func1;
-
-	public function func1() {
-		return 'result1';
-	}
-
-/**
- *	Function listed in allows() is ok to access.
- */
-	public function func2() {
-		return 'result2';
-	}
-
-/**
- *	Function without public property, and not isAllowed().
- */
-	public function func3() {
-		return 'result3';
-	}
-
-/**
- *	Protected function can not be accessed.
- */
-	protected $_func4;
-
-	protected function _func4() {
-		return 'result4';
-	}
+class PostEntity extends AppEntity {
 
 }
 
-class PostCommentEntity extends Entity {
+class CommentEntity extends AppEntity {
 
 }
-
-/**
- *	Data
- */
 
 class SampleData {
 
@@ -282,8 +241,7 @@ class SampleData {
 /**
  *	Testcases
  */
-
-class EntityModelTestCase extends CakeTestCase {
+class EntityModelTest extends CakeTestCase {
 
 	public function startTest($method) {
 		$this->Post = ClassRegistry::init('Post');
@@ -304,46 +262,44 @@ class EntityModelTestCase extends CakeTestCase {
 		// 2. create entity with data. Properties can be accessed.
 		$s2 = $this->Post->entity(SampleData::$simpleData);
 		$this->assertTrue(is_a($s2, 'PostEntity'));
-		$this->assertEqual($s2->id, 123);
-		$this->assertEqual($s2->title, 'Hello');
+		$this->assertEqual($s2->get('id'), 123);
+		$this->assertEqual($s2->get('title'), 'Hello');
 
 		// 3. create entity with complex data.
 		$s3 = $this->Post->entity(SampleData::$associatedData);
 
 		// 3a. ensure object is PostEntity.
 		$this->assertTrue(is_a($s3, 'PostEntity'));
-		$this->assertEqual($s3->id, 123);
-		$this->assertEqual($s3->title, 'Hello');
+		$this->assertEqual($s2->get('id'), 123);
+		$this->assertEqual($s2->get('title'), 'Hello');
 
 		// 3b. belongsTo association.
-		$this->assertTrue(is_a($s3->author, 'AuthorEntity'));
-		$this->assertEqual($s3->author->id, 345);
-		$this->assertEqual($s3->author->name, 'Bob');
+		$this->assertTrue(is_a($s3->get('Author'), 'AuthorEntity'));
+		$this->assertEqual($s3->get('Author')->get('id'), 345);
+		$this->assertEqual($s3->get('Author')->get('name'), 'Bob');
 
 		// 3c. hasOne association. Entity has no specific class.
-		$this->assertTrue(is_a($s3->image, 'AppEntity'));
-		$this->assertEqual($s3->image->id, 234);
+		$this->assertTrue(is_a($s3->get('Image'), 'AppEntity'));
+		$this->assertEqual($s3->get('Image')->get('id'), 234);
 
 		// 3d. hasMany association.
-		$this->assertEqual(count($s3->comments), 3);
-		$this->assertTrue(is_a($s3->comments[0], 'PostCommentEntity'));
-		$this->assertEqual($s3->comments[0]->comment, 'hello');
+		$this->assertEqual(count($s3->get('Comment')), 3);
+		$this->assertTrue(is_a($s3->get('Comment')[0], 'CommentEntity'));
+		$this->assertEqual($s3->get('Comment')[0]->get('comment'), 'hello');
 
 		// 3e. hasMany association (not EntityModel).
-		$this->assertEqual(count($s3->star), 2);
-		$this->assertTrue(is_array($s3->star[0]));
-		$this->assertEqual($s3->star[0]['point'], 1);
+		$this->assertEqual(count($s3->get('Star')), 2);
+		$this->assertTrue(is_array($s3->get('Star')[0]));
+		$this->assertEqual($s3->get('Star')[0]['point'], 1);
 	}
 
-/**
- * 4. create entity with complex data.
- */
 	public function testCreateEntityWithEmptyHasMany() {
+		// 4. create entity with complex data.
 		$s = $this->Post->entity(SampleData::$emptyHasManyData);
 
-		$this->assertTrue(isset($s->comments));
-		$this->assertTrue(is_array($s->comments));
-		$this->assertEqual(count($s->comments), 0);
+		$this->assertNotNull($s->get('Comment'));
+		$this->assertTrue(is_array($s->get('Comment')));
+		$this->assertEqual(count($s->get('Comment')), 0);
 	}
 
 	public function testFind() {
@@ -375,7 +331,6 @@ class EntityModelTestCase extends CakeTestCase {
 	public function testFetchEntities() {
 		// 1. entities is shortcut for
 		// find('all') with entitiy => true.
-
 		$result = $this->Post->entities();
 		$this->assertTrue(is_array($result));
 		$this->assertEqual(count($result), 3);
@@ -439,74 +394,6 @@ class EntityModelTestCase extends CakeTestCase {
 		// 5. property start with '_' cannot by access;
 		$s->_foo = 'Bar';
 		$this->assertFalse(isset($s['_foor']));
-
-		// 6. function can be also accessable.
-		$this->assertEqual($s['func1'], 'result1');
-		$this->assertEqual($s['func2'], 'result2');
-		$this->assertEqual($s['func3'], null);
-		$this->assertEqual($s['_func4'], null);
-
-		// 7. func1 has a public property, so it must be cached.
-		$this->func1 = null; // clear cache.
-		$this->assertEqual($s['func1'], 'result1');
-		$this->assertEqual($s->func1, 'result1');
-	}
-
-/**
- *	Entity'property access is controlled by allows().
- *	This is used by isAllowed($methodName).
- *	Entity class can override allows() to control access.
- */
-	public function testAllowPropertyAccess() {
-		$s = $this->Post->entity();
-
-		// This entity's allows() will return PostEntity::$allows,
-		// so changing PostEntity::$allows changes the authorization
-		// on the fly.
-
-		// This is not common. Don't use this on production.
-
-		//
-		// func1 is allowed by public property, so always ok.
-		// _func4 is protected method, so always not ok.
-		//
-
-		// 1. allow everything
-		PostEntity::$allows = '*';
-
-		$this->assertTrue($s->isAllowed('func1'));	// func1 is ok
-		$this->assertTrue($s->isAllowed('func2'));	// func2 is ok
-		$this->assertTrue($s->isAllowed('func3'));	// func3 is ok
-		$this->assertFalse($s->isAllowed('_func4'));	// _func4 is protected
-
-		// 2. allow only func3
-		PostEntity::$allows = array('func3');
-
-		$this->assertTrue($s->isAllowed('func1'));	// func1 is ok
-		$this->assertFalse($s->isAllowed('func2'));	// func2 is not ok
-		$this->assertTrue($s->isAllowed('func3'));	// func3 is ok
-		$this->assertFalse($s->isAllowed('_func4'));	// _func4 is protected
-
-		// 3. allow both func1 and func3
-		PostEntity::$allows = array('func2', 'func3');
-
-		$this->assertTrue($s->isAllowed('func1'));	// func1 is ok
-		$this->assertTrue($s->isAllowed('func2'));	// func2 is ok
-		$this->assertTrue($s->isAllowed('func3'));	// func3 is ok
-		$this->assertFalse($s->isAllowed('_func4'));	// _func4 is protected
-
-		// 4. allow nothing
-		PostEntity::$allows = false;
-
-		$this->assertTrue($s->isAllowed('func1'));	// func1 is ok
-		$this->assertFalse($s->isAllowed('func2'));	// func2 is not ok
-		$this->assertFalse($s->isAllowed('func3'));	// func3 is not ok
-		$this->assertFalse($s->isAllowed('_func4'));	// _func4 is protected
-
-		// 5. protected method can not allow by allows().
-		PostEntity::$allows = array('_func4');
-
-		$this->assertFalse($s->isAllowed('_func4'));	// _func4 is protected
 	}
 
 /**
@@ -517,19 +404,19 @@ class EntityModelTestCase extends CakeTestCase {
 		$a = $this->Author->entity();
 
 		// 1. empty entity
-		$expected = '<div class="Author"></div>';
+		$expected = '<div class="AuthorEntity"></div>';
 		$this->assertEqual(strval($a), $expected);
 
 		// 2. assign entity
 		$a->name = 'Basuke';
 
-		$expected = '<div class="Author"><strong class="key">name</strong><span clas="value">Basuke</span></div>';
+		$expected = '<div class="AuthorEntity"><strong class="key">name</strong><span clas="value">Basuke</span></div>';
 		$this->assertEqual(strval($a), $expected);
 
 		// 3. value must be html escaped
 		$a->job = "<b>Programmer</b>";
 
-		$expected = '<div class="Author"><strong class="key">name</strong><span clas="value">Basuke</span><strong class="key">job</strong><span clas="value">&lt;b&gt;Programmer&lt;/b&gt;</span></div>';
+		$expected = '<div class="AuthorEntity"><strong class="key">name</strong><span clas="value">Basuke</span><strong class="key">job</strong><span clas="value">&lt;b&gt;Programmer&lt;/b&gt;</span></div>';
 		$this->assertEqual(strval($a), $expected);
 	}
 
@@ -591,13 +478,6 @@ class EntityModelTestCase extends CakeTestCase {
 		$author = $this->Author->entity($data);
 		$reversed = $author->toArray();
 		$this->assertEqual($reversed, $data);
-	}
-
-	public function testEntityGetModel() {
-		// Entity may return its Model object.
-		$s1 = $this->Post->entity();
-		$Model = $s1->getModel();
-		$this->assertTrue(is_a($Model, 'Post'));
 	}
 
 }

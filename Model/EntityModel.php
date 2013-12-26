@@ -1,14 +1,124 @@
 <?php
 App::uses('EntityAppModel', 'Entity.Model');
-App::uses('Entity', 'Entity.Model');
-App::uses('AppEntity', 'Entity.Model');
+App::uses('Entity', 'Entity.Model/Entity');
+App::uses('AppEntity', 'Entity.Model/Entity');
 App::uses('Hash', 'Utility');
 
 class EntityModel extends EntityAppModel {
 
 	public $entity;
 
+	protected $_entityClass = null;
+
 	protected $_savedEntityStates = array();
+
+	public function __construct($id = false, $table = null, $ds = null) {
+		parent::__construct($id, $table, $ds);
+		$this->entityClass($this->name . 'Entity');
+	}
+
+	public function table($table = null) {
+		if ($table !== null) {
+			$this->setSource($table);
+		}
+		return $this->table;
+	}
+
+/**
+ * @throws Exception Unimplemented
+ */
+	public function alias($alias = null) {
+		throw new Exception("Method 'alias' not implemented");
+	}
+
+/**
+ * @throws Exception Unimplemented
+ */
+	public function connection($alias = null) {
+		throw new Exception("Method 'connection' not implemented");
+	}
+
+	public function primaryKey($key = null) {
+		if ($key !== null) {
+						$this->primaryKey = $key;
+		}
+
+		return $this->primaryKey;
+	}
+
+	public function displayField($key = null) {
+		if ($key !== null) {
+			$this->displayField = $key;
+		}
+
+		return $this->displayField;
+	}
+
+	public function entityClass($name = null) {
+		if ($name === null && !$this->_entityClass) {
+			$name = $this->name . 'Entity';
+		}
+
+		if ($name !== null) {
+			App::uses($name, 'Model/Entity');
+			$this->_entityClass = $name;
+		}
+
+		return $this->_entityClass;
+	}
+
+	public function addBehavior() {
+		$this->Behaviors->load($name, $options);
+	}
+
+	public function behaviors() {
+		$this->Behaviors->loaded();
+	}
+
+	public function hasBehavior($name) {
+		$this->Behaviors->loaded($name);
+	}
+
+/**
+ * @throws Exception Unimplemented
+ */
+	public function association($name) {
+		throw new Exception("Method 'association' not implemented");
+	}
+
+/**
+ * @throws Exception Unimplemented
+ */
+	public function associations($alias = null) {
+		throw new Exception("Method 'associations' not implemented");
+	}
+
+	public function hasOne($associated, $options = array()) {
+		$this->_bindModel('hasOne', $associated, $options);
+	}
+
+	public function belongsTo($associated, $options = array()) {
+		$this->_bindModel('belongsTo', $associated, $options);
+	}
+
+	public function hasMany($associated, $options = array()) {
+		$this->_bindModel('hasMany', $associated, $options);
+	}
+
+	public function belongsToMany($associated, $options = array()) {
+		$this->_bindModel('hasAndBelongsToMany', $associated, $options);
+	}
+
+	protected function _bindModel($type, $associated, $options = array()) {
+		$reset = empty($options['reset']) ? true : false;
+		if (isset($options['reset'])) {
+			unset($options['reset']);
+		}
+
+		return $this->bindModel(array(
+			$type => array($associated => $options)
+		), $reset);
+	}
 
 /**
  *	Convert passed $data structure into coresponding entity object.
@@ -37,11 +147,7 @@ class EntityModel extends EntityAppModel {
 	}
 
 	public function entity($data = array()) {
-		if ($data) {
-			$class = $this->_entityClassForData($data[$this->alias]);
-		} else {
-			$class = $this->_entityClass();
-		}
+		$class = $this->entityClass();
 
 		if (!class_exists($class)) {
 			if (!App::import('Model', $class)) {
@@ -49,8 +155,7 @@ class EntityModel extends EntityAppModel {
 			}
 		}
 
-		$entity = new $class();
-		$entity->bind($this, $data);
+		$entity = new $class($data);
 		return $entity;
 	}
 
@@ -83,12 +188,8 @@ class EntityModel extends EntityAppModel {
 		$this->entity = array_pop($this->_savedEntityStates);
 	}
 
-	protected function _entityClass() {
-		return $this->name . 'Entity';
-	}
-
 	protected function _entityClassForData($data) {
-		return $this->_entityClass();
+		return $this->entityClass();
 	}
 
 	public function allEntities($params = array()) {
