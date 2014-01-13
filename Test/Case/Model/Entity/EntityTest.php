@@ -5,15 +5,10 @@ class TestStudioEntity extends Entity {
 
 }
 
-
+/**
+ * Entity test case.
+ */
 class EntityTest extends CakeTestCase {
-
-	public function startTest($method) {
-	}
-
-	public function endTest($method) {
-		ClassRegistry::flush();
-	}
 
 /**
  * Tests setting a single property in an entity without custom setters
@@ -41,11 +36,11 @@ class EntityTest extends CakeTestCase {
 		$entity = new Entity;
 		$entity->accessible('*', true);
 
-		$entity->set(array('foo' => 'bar', 'id' => 1));
+		$entity->set(['foo' => 'bar', 'id' => 1]);
 		$this->assertEquals('bar', $entity->foo);
 		$this->assertSame(1, $entity->id);
 
-		$entity->set(array('foo' => 'baz', 'id' => 2, 'thing' => 3));
+		$entity->set(['foo' => 'baz', 'id' => 2, 'thing' => 3]);
 		$this->assertEquals('baz', $entity->foo);
 		$this->assertSame(2, $entity->id);
 		$this->assertSame(3, $entity->thing);
@@ -57,7 +52,7 @@ class EntityTest extends CakeTestCase {
  * @return void
  */
 	public function testSetOneParamWithSetter() {
-		$entity = $this->getMock('Entity', array('setName'));
+		$entity = $this->getMock('Entity', ['setName']);
 		$entity->expects($this->once())->method('setName')
 			->with('Jones')
 			->will($this->returnCallback(function($name) {
@@ -74,7 +69,7 @@ class EntityTest extends CakeTestCase {
  * @return void
  */
 	public function testMultipleWithSetter() {
-		$entity = $this->getMock('Entity', array('setName', 'setStuff'));
+		$entity = $this->getMock('Entity', ['setName', 'setStuff']);
 		$entity->accessible('*', true);
 		$entity->expects($this->once())->method('setName')
 			->with('Jones')
@@ -83,14 +78,14 @@ class EntityTest extends CakeTestCase {
 				return 'Dr. ' . $name;
 			}));
 		$entity->expects($this->once())->method('setStuff')
-			->with(array('a', 'b'))
+			->with(['a', 'b'])
 			->will($this->returnCallback(function($stuff) {
-				$this->assertEquals(array('a', 'b'), $stuff);
-				return array('c', 'd');
+				$this->assertEquals(['a', 'b'], $stuff);
+				return ['c', 'd'];
 			}));
-		$entity->set(array('name' => 'Jones', 'stuff' => array('a', 'b')));
+		$entity->set(['name' => 'Jones', 'stuff' => ['a', 'b']]);
 		$this->assertEquals('Dr. Jones', $entity->name);
-		$this->assertEquals(array('c', 'd'), $entity->stuff);
+		$this->assertEquals(['c', 'd'], $entity->stuff);
 	}
 
 /**
@@ -99,19 +94,19 @@ class EntityTest extends CakeTestCase {
  * @return void
  */
 	public function testBypassSetters() {
-		$entity = $this->getMock('Entity', array('setName', 'setStuff'));
+		$entity = $this->getMock('Entity', ['setName', 'setStuff']);
 		$entity->accessible('*', true);
 
 		$entity->expects($this->never())->method('setName');
 		$entity->expects($this->never())->method('setStuff');
 
-		$entity->set('name', 'Jones', array('setter' => false));
+		$entity->set('name', 'Jones', ['setter' => false]);
 		$this->assertEquals('Jones', $entity->name);
 
-		$entity->set('stuff', 'Thing', array('setter' => false));
+		$entity->set('stuff', 'Thing', ['setter' => false]);
 		$this->assertEquals('Thing', $entity->stuff);
 
-		$entity->set(array('name' => 'foo', 'stuff' => 'bar'), array('setter' => false));
+		$entity->set(['name' => 'foo', 'stuff' => 'bar'], ['setter' => false]);
 		$this->assertEquals('bar', $entity->stuff);
 	}
 
@@ -122,19 +117,19 @@ class EntityTest extends CakeTestCase {
  */
 	public function testConstructor() {
 		$entity = $this->getMockBuilder('Entity')
-			->setMethods(array('set'))
+			->setMethods(['set'])
 			->disableOriginalConstructor()
 			->getMock();
 		$entity->expects($this->at(0))
 			->method('set')
-			->with(array('a' => 'b', 'c' => 'd'), array('setter' => true, 'guard' => false));
+			->with(['a' => 'b', 'c' => 'd'], ['setter' => true, 'guard' => false]);
 
 		$entity->expects($this->at(1))
 			->method('set')
-			->with(array('foo' => 'bar'), array('setter' => false, 'guard' => false));
+			->with(['foo' => 'bar'], ['setter' => false, 'guard' => false]);
 
-		$entity->__construct(array('a' => 'b', 'c' => 'd'));
-		$entity->__construct(array('foo' => 'bar'), array('useSetters' => false));
+		$entity->__construct(['a' => 'b', 'c' => 'd']);
+		$entity->__construct(['foo' => 'bar'], ['useSetters' => false]);
 	}
 
 /**
@@ -150,8 +145,8 @@ class EntityTest extends CakeTestCase {
 			->getMock();
 		$entity->expects($this->once())
 			->method('set')
-			->with(array('foo' => 'bar'), array('setter' => true, 'guard' => true));
-		$entity->__construct(array('foo' => 'bar'), array('guard' => true));
+			->with(['foo' => 'bar'], ['setter' => true, 'guard' => true]);
+		$entity->__construct(['foo' => 'bar'), ['guard' => true]);
 	}
 
 /**
@@ -160,7 +155,7 @@ class EntityTest extends CakeTestCase {
  * @return void
  */
 	public function testGetNoGetters() {
-		$entity = new Entity(array('id' => 1, 'foo' => 'bar'));
+		$entity = new Entity(['id' => 1, 'foo' => 'bar']);
 		$this->assertSame(1, $entity->get('id'));
 		$this->assertSame('bar', $entity->get('foo'));
 	}
