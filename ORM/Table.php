@@ -199,15 +199,6 @@ class Table extends AppModel {
 	public function association($name) {
 		throw new Exception("Method 'association' not implemented");
 	}
-/**
- * Get the associations collection for this table.
- *
- * @return Cake\ORM\Associations
- * @throws Exception Method 'associations' not implemented
- */
-	public function associations($alias = null) {
-		throw new Exception("Method 'associations' not implemented");
-	}
 
 /**
  * Creates a new BelongsTo association between this table and a target
