@@ -144,7 +144,7 @@ class Table extends AppModel {
  */
 	public function entityClass($name = null) {
 		if ($name === null && !$this->_entityClass) {
-			$name = $this->name . 'Entity';
+			$name = Inflector::classify($this->alias()) . 'Entity';
 		}
 
 		if ($name !== null) {
