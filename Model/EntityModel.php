@@ -150,7 +150,8 @@ class EntityModel extends EntityAppModel {
 		$class = $this->entityClass();
 
 		if (!class_exists($class)) {
-			if (!App::import('Model', $class)) {
+			App::uses($class, 'Model/Entity');
+			if (!class_exists($class)) {
 				$class = 'AppEntity';
 			}
 		}
