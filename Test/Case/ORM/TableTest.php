@@ -255,17 +255,17 @@ class TableTest extends CakeTestCase {
 
 	public function testEntityCreation() {
 		// 1. create entity. It must be instance of PostEntity.
-		$s1 = $this->Post->entity();
+		$s1 = $this->Post->newEntity();
 		$this->assertTrue(is_a($s1, 'PostEntity'));
 
 		// 2. create entity with data. Properties can be accessed.
-		$s2 = $this->Post->entity(SampleData::$simpleData);
+		$s2 = $this->Post->newEntity(SampleData::$simpleData);
 		$this->assertTrue(is_a($s2, 'PostEntity'));
 		$this->assertEqual($s2->get('id'), 123);
 		$this->assertEqual($s2->get('title'), 'Hello');
 
 		// 3. create entity with complex data.
-		$s3 = $this->Post->entity(SampleData::$associatedData);
+		$s3 = $this->Post->newEntity(SampleData::$associatedData);
 
 		// 3a. ensure object is PostEntity.
 		$this->assertTrue(is_a($s3, 'PostEntity'));
@@ -294,7 +294,7 @@ class TableTest extends CakeTestCase {
 
 	public function testCreateEntityWithEmptyHasMany() {
 		// 4. create entity with complex data.
-		$s = $this->Post->entity(SampleData::$emptyHasManyData);
+		$s = $this->Post->newEntity(SampleData::$emptyHasManyData);
 
 		$this->assertNotNull($s->get('Comment'));
 		$this->assertTrue(is_array($s->get('Comment')));
@@ -368,7 +368,7 @@ class TableTest extends CakeTestCase {
 	}
 
 	public function testEntityArrayAccess() {
-		$s = $this->Post->entity();
+		$s = $this->Post->newEntity();
 
 		// 1. Simple array access.
 		$s->name = 'Hello';
@@ -400,7 +400,7 @@ class TableTest extends CakeTestCase {
  *	when it used as string.
  */
 	public function testStringReplesentationOfEntity() {
-		$a = $this->Author->entity();
+		$a = $this->Author->newEntity();
 
 		// 1. empty entity
 		$expected = '<div class="AuthorEntity"></div>';
@@ -431,7 +431,7 @@ class TableTest extends CakeTestCase {
 			),
 		);
 
-		$author = $this->Author->entity($data);
+		$author = $this->Author->newEntity($data);
 		$reversed = $author->toArray();
 		$this->assertEqual($reversed, $data);
 
@@ -456,7 +456,7 @@ class TableTest extends CakeTestCase {
 			),
 		);
 
-		$author = $this->Author->entity($data);
+		$author = $this->Author->newEntity($data);
 		$reversed = $author->toArray();
 		$this->assertEqual($reversed, $data);
 
@@ -474,7 +474,7 @@ class TableTest extends CakeTestCase {
 			),
 		);
 
-		$author = $this->Author->entity($data);
+		$author = $this->Author->newEntity($data);
 		$reversed = $author->toArray();
 		$this->assertEqual($reversed, $data);
 	}
