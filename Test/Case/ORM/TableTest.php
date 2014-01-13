@@ -11,6 +11,11 @@ App::uses('Entity', 'Entity.ORM');
  *
  */
 
+class UserTable extends Table {
+	public function initialize(array $config) {
+		$this->table('users');
+	}
+}
 
 class TestEntityModel extends Table {
 
@@ -242,6 +247,16 @@ class SampleData {
  */
 class TableTest extends CakeTestCase {
 
+/**
+ * Handy variable containing the next primary key that will be inserted in the
+ * users table
+ *
+ * @var integer
+ */
+	public static $nextUserId = 5;
+
+  public $fixtures = array('plugin.entity.user');
+
 	public function startTest($method) {
 		$this->Post = ClassRegistry::init('Post');
 		$this->Author = ClassRegistry::init('Author');
@@ -251,6 +266,27 @@ class TableTest extends CakeTestCase {
 		unset($this->Post);
 		unset($this->Author);
 		ClassRegistry::flush();
+	}
+
+/**
+ * Tests that it is possible to insert a new row using the save method
+ *
+ * @group save
+ * @return void
+ */
+	public function testSaveNewEntity() {
+		$entity = new Entity([
+			'username' => 'superuser',
+			'password' => 'root',
+			'created' => '2013-10-10 00:00',
+			'updated' => '2013-10-10 00:00',
+		]);
+		$table = ClassRegistry::init('UserTable');
+		$this->assertSame($entity, $table->save($entity));
+		$this->assertEquals($entity->id, self::$nextUserId);
+
+		$row = $table->find('first', array('conditions' => array('id' => self::$nextUserId)));
+		$this->assertEquals($entity->toArray(), $row->toArray());
 	}
 
 	public function testEntityCreation() {
