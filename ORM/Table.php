@@ -1,4 +1,5 @@
 <?php
+App::uses('AppModel', 'Model');
 App::uses('Entity', 'Entity.ORM');
 App::uses('Hash', 'Utility');
 
