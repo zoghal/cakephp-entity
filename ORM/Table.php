@@ -418,6 +418,26 @@ class Table extends AppModel {
 		throw new Exception("Method 'validationDefault' not implemented");
 	}
 
+	public function save(Entity $entity, $validate = true, $fieldList = array()) {
+		if (!(is_object($entity) && $entity instanceof $entity)) {
+			return parent::save($entity, $validate, $fieldList);
+		}
+
+		if ($entity->isNew() === false && !$entity->dirty()) {
+			return $entity;
+		}
+
+    $isNew = $entity->isNew();
+		$success = parent::save($entity, $validate, $fieldList);
+		if (!$success) {
+			return $success;
+		}
+
+		$entity->isNew(false);
+		$entity->set($this->primaryKey(), $this->getInsertID());
+		return $entity;
+	}
+
 /**
  * Get the object used to marshal/convert array data into objects.
  *
