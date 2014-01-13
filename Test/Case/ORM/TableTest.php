@@ -12,9 +12,11 @@ App::uses('Entity', 'Entity.ORM');
  */
 
 class UserTable extends Table {
+
 	public function initialize(array $config) {
 		$this->table('users');
 	}
+
 }
 
 class TestEntityModel extends Table {
@@ -255,7 +257,7 @@ class TableTest extends CakeTestCase {
  */
 	public static $nextUserId = 5;
 
-  public $fixtures = array('plugin.entity.user');
+	public $fixtures = array('plugin.entity.user');
 
 	public function startTest($method) {
 		$this->Post = ClassRegistry::init('Post');

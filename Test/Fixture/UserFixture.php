@@ -14,12 +14,12 @@ class UserFixture extends CakeTestFixture {
  * @var array
  */
 	public $fields = [
-    'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
+		'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
 		'username' => ['type' => 'string', 'null' => true],
 		'password' => ['type' => 'string', 'null' => true],
 		'created' => ['type' => 'datetime', 'null' => true],
 		'updated' => ['type' => 'datetime', 'null' => true],
-    'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
+		'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
 	];
 
 /**
