@@ -441,6 +441,7 @@ class Table extends AppModel {
  * associated values.
  *
  * @return EntityValidator
+ * @throws Exception Method 'entityValidator' not implemented
  */
 	public function entityValidator() {
 		throw new Exception("Method 'entityValidator' not implemented");
@@ -474,6 +475,7 @@ class Table extends AppModel {
  * @param array $data The data to build an entity with.
  * @param array $associations A whitelist of associations
  *   to hydrate. Defaults to all associations
+ * @throws Exception Method 'newEntity' not fully implemented
  */
 	public function newEntity(array $data, $associations = null) {
 		if ($associations !== null) {
@@ -518,6 +520,7 @@ class Table extends AppModel {
  * @param array $data The data to build an entity with.
  * @param array $associations A whitelist of associations
  *   to hydrate. Defaults to all associations
+ * @throws Exception Method 'newEntities' not implemented
  */
 	public function newEntities(array $data, $associations = null) {
 		throw new Exception("Method 'newEntities' not implemented");
