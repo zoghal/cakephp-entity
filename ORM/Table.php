@@ -416,7 +416,7 @@ class Table extends AppModel {
 				return false;
 			}
 
-			$entity->newEntity($success);
+			$entity = $this->newEntity($success);
 			$entity->isNew(false);
 			return $entity;
 		}
