@@ -411,7 +411,14 @@ class Table extends AppModel {
 
 	public function save($entity = null, $validate = true, $fieldList = array()) {
 		if (!(is_object($entity) && $entity instanceof $entity)) {
-			return parent::save($entity, $validate, $fieldList);
+			$success = parent::save($entity, $validate, $fieldList);
+			if (!$success) {
+				return false;
+			}
+
+			$entity->newEntity($success);
+			$entity->isNew(false);
+			return $entity;
 		}
 
 		if ($entity->isNew() === false && !$entity->dirty()) {
