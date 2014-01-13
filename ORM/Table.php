@@ -428,7 +428,7 @@ class Table extends AppModel {
     $isNew = $entity->isNew();
 		$success = parent::save($entity, $validate, $fieldList);
 		if (!$success) {
-			return $success;
+			return false;
 		}
 
 		$entity->isNew(false);
