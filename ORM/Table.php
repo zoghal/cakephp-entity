@@ -5,7 +5,7 @@ App::uses('Hash', 'Utility');
 
 class Table extends AppModel {
 
-	public $entity = true;
+	public $entity;
 
 	protected $_entityClass = null;
 
@@ -91,6 +91,20 @@ class Table extends AppModel {
 
 		$this->setDataSource($conn);
 		return $this->getDataSource();
+	}
+
+/**
+ * Returns the current entity state or sets a new one
+ *
+ * @param string $boolean sets an entity state
+ * @return string
+ */
+	public function entity($boolean = null) {
+		if ($boolean !== null) {
+			$this->entity = $boolean;
+		}
+
+		return $this->entity;
 	}
 
 /**

@@ -15,6 +15,7 @@ class UserTable extends Table {
 
 	public function initialize(array $config) {
 		$this->table('users');
+		$this->entity(true);
 	}
 
 }
@@ -288,8 +289,6 @@ class TableTest extends CakeTestCase {
 		$this->assertEquals($entity->id, self::$nextUserId);
 
 		$row = $table->find('first', array('conditions' => array('id' => self::$nextUserId)));
-		$this->assertInstanceOf('Entity', $entity);
-		$this->assertInstanceOf('Entity', $row);
 		$this->assertEquals($entity->toArray(), $row->toArray());
 	}
 
