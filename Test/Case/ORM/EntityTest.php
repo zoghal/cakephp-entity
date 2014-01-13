@@ -146,7 +146,7 @@ class EntityTest extends CakeTestCase {
 		$entity->expects($this->once())
 			->method('set')
 			->with(['foo' => 'bar'], ['setter' => true, 'guard' => true]);
-		$entity->__construct(['foo' => 'bar'), ['guard' => true]);
+		$entity->__construct(['foo' => 'bar'], ['guard' => true]);
 	}
 
 /**
