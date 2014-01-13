@@ -255,7 +255,7 @@ class TableTest extends CakeTestCase {
 
 	public function testEntityCreation() {
 		// 1. create entity. It must be instance of PostEntity.
-		$s1 = $this->Post->newEntity();
+		$s1 = $this->Post->newEntity(array());
 		$this->assertTrue(is_a($s1, 'PostEntity'));
 
 		// 2. create entity with data. Properties can be accessed.
@@ -368,7 +368,7 @@ class TableTest extends CakeTestCase {
 	}
 
 	public function testEntityArrayAccess() {
-		$s = $this->Post->newEntity();
+		$s = $this->Post->newEntity(array());
 
 		// 1. Simple array access.
 		$s->name = 'Hello';
@@ -400,7 +400,7 @@ class TableTest extends CakeTestCase {
  *	when it used as string.
  */
 	public function testStringReplesentationOfEntity() {
-		$a = $this->Author->newEntity();
+		$a = $this->Author->newEntity(array());
 
 		// 1. empty entity
 		$expected = '<div class="AuthorEntity"></div>';

@@ -406,16 +406,6 @@ class Table extends AppModel {
 	}
 
 /**
- * Creates a new Query instance for this table
- *
- * @return \Cake\ORM\Query
- * @throws Exception Method 'query' not implemented
- */
-	public function query() {
-		throw new Exception("Method 'query' not implemented");
-	}
-
-/**
  * Returns the default validator object. Subclasses can override this function
  * to add a default validation set to the validator object.
  *
@@ -489,6 +479,7 @@ class Table extends AppModel {
 		if ($associations !== null) {
 			throw new Exception("Method 'newEntity' not fully implemented");
 		}
+
 		$class = $this->entityClass();
 
 		if (!class_exists($class)) {
