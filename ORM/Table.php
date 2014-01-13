@@ -1,10 +1,8 @@
 <?php
-App::uses('EntityAppModel', 'Entity.Model');
-App::uses('Entity', 'Entity.Model/Entity');
-App::uses('AppEntity', 'Entity.Model/Entity');
+App::uses('Entity', 'Entity.ORM');
 App::uses('Hash', 'Utility');
 
-class EntityModel extends EntityAppModel {
+class Table extends AppModel {
 
 	public $entity;
 
@@ -152,7 +150,7 @@ class EntityModel extends EntityAppModel {
 		if (!class_exists($class)) {
 			App::uses($class, 'Model/Entity');
 			if (!class_exists($class)) {
-				$class = 'AppEntity';
+				$class = 'Entity';
 			}
 		}
 
@@ -235,7 +233,7 @@ class EntityModel extends EntityAppModel {
  *
  */
 	public function set($one, $two = null) {
-		if (is_a($one, 'Entity')) {
+		if ($one instanceof Entity) {
 			$one = $one->toArray();
 		}
 		return parent::set($one, $two);
@@ -316,7 +314,7 @@ class EntityModel extends EntityAppModel {
 			$Model = ClassRegistry::init($alias);
 		}
 
-		if ($Model && is_a($Model, 'EntityModel')) {
+		if ($Model && $Model instanceof Table) {
 			return $Model;
 		}
 

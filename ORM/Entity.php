@@ -2,7 +2,6 @@
 App::uses('Hash', 'Utility');
 App::uses('ModelValidator', 'Model');
 App::uses('Inflector', 'Utility');
-App::uses('AppEntity', 'Entity.Model/Entity');
 
 class Entity implements ArrayAccess, JsonSerializable {
 
@@ -282,7 +281,7 @@ class Entity implements ArrayAccess, JsonSerializable {
 			}
 		}
 
-		if (!is_subclass_of($_p, 'EntityModel')) {
+		if (!is_subclass_of($_p, 'Table')) {
 			return array($p, $value);
 		}
 
@@ -291,7 +290,7 @@ class Entity implements ArrayAccess, JsonSerializable {
 		}
 
 		if (!class_exists($className)) {
-			$className = 'AppEntity';
+			$className = 'Entity';
 		}
 
 		if (is_array($value) && Hash::numeric(array_keys($value))) {

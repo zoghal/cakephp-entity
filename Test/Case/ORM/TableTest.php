@@ -1,19 +1,18 @@
 <?php
-App::uses('EntityModel', 'Entity.Model');
-App::uses('Entity', 'Entity.Model');
-App::uses('AppEntity', 'Entity.Model/Entity');
+App::uses('Table', 'Entity.ORM');
+App::uses('Entity', 'Entity.ORM');
 
 /**
  *	Models
  *
  *  Author --many--> Post --one---> Image
  *                        --many--> Comment
- *                        --many--> Star (not EntityModel)
+ *                        --many--> Star (not Table)
  *
  */
 
 
-class TestEntityModel extends EntityModel {
+class TestEntityModel extends Table {
 
 	public $useTable = false;
 
@@ -138,15 +137,15 @@ class Star extends AppModel {
  *	Entities
  */
 
-class AuthorEntity extends AppEntity {
+class AuthorEntity extends Entity {
 
 }
 
-class PostEntity extends AppEntity {
+class PostEntity extends Entity {
 
 }
 
-class CommentEntity extends AppEntity {
+class CommentEntity extends Entity {
 
 }
 
@@ -241,7 +240,7 @@ class SampleData {
 /**
  *	Testcases
  */
-class EntityModelTest extends CakeTestCase {
+class TableTest extends CakeTestCase {
 
 	public function startTest($method) {
 		$this->Post = ClassRegistry::init('Post');
@@ -279,7 +278,7 @@ class EntityModelTest extends CakeTestCase {
 		$this->assertEqual($s3->get('Author')->get('name'), 'Bob');
 
 		// 3c. hasOne association. Entity has no specific class.
-		$this->assertTrue(is_a($s3->get('Image'), 'AppEntity'));
+		$this->assertTrue(is_a($s3->get('Image'), 'Entity'));
 		$this->assertEqual($s3->get('Image')->get('id'), 234);
 
 		// 3d. hasMany association.
@@ -287,7 +286,7 @@ class EntityModelTest extends CakeTestCase {
 		$this->assertTrue(is_a($s3->get('Comment')[0], 'CommentEntity'));
 		$this->assertEqual($s3->get('Comment')[0]->get('comment'), 'hello');
 
-		// 3e. hasMany association (not EntityModel).
+		// 3e. hasMany association (not Table).
 		$this->assertEqual(count($s3->get('Star')), 2);
 		$this->assertTrue(is_array($s3->get('Star')[0]));
 		$this->assertEqual($s3->get('Star')[0]['point'], 1);

@@ -1,5 +1,5 @@
 <?php
-App::uses('Entity', 'Entity.Model/Entity');
+App::uses('Entity', 'Entity.ORM');
 
 class TestStudioEntity extends Entity {
 

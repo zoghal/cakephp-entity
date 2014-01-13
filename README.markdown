@@ -74,16 +74,16 @@ CakeEntity doesn't change anything with your current the installation.
 You have to enables the functionality by indicating to use it.
 This is for compatibility reasons.
 
-Use `EntityModel` as the super class of models where you would like to activate the plugin.
+Use `Table` as the super class of models where you would like to activate the plugin.
 
 ```php
 <?php
-App::uses('EntityModel', 'Entity.Model');
+App::uses('Table', 'Entity.Model');
 
-class Post extends EntityModel {
+class Post extends Table {
 
 }
-
+?>
 ```
 
 Then in the options of the `find`, specify `entity` => true:
@@ -95,6 +95,7 @@ $entity = $this->Post->find('all', array(
     'order' => ...
     'entity' => true,
 ));
+?>
 ```
 
 Now the `$result` includes the array of objects (entities).
@@ -107,11 +108,12 @@ uses instead. (i.e. For model "Post", the class "PostEntity" is used)
 
 ```php
 <?php
-App::uses('EntityModel', 'Entity.Model');
+App::uses('Table', 'Entity.ORM');
 App::uses('PostEntity', 'Model/Entity');
 
-class Post extends EntityModel {
+class Post extends Table {
 }
+?>
 ```
 
 ```php
@@ -121,6 +123,7 @@ App::uses('Entity', 'Model/Entity');
 class PostEntity extends Entity {
     // Your custom logic here
 }
+?>
 ```
 
 ### Array access for Entity object
