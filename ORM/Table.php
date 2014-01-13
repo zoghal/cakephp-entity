@@ -5,7 +5,7 @@ App::uses('Hash', 'Utility');
 
 class Table extends AppModel {
 
-	public $entity;
+	public $entity = true;
 
 	protected $_entityClass = null;
 
