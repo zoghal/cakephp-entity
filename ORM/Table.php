@@ -418,7 +418,7 @@ class Table extends AppModel {
 		throw new Exception("Method 'validationDefault' not implemented");
 	}
 
-	public function save(Entity $entity, $validate = true, $fieldList = array()) {
+	public function save($entity = null, $validate = true, $fieldList = array()) {
 		if (!(is_object($entity) && $entity instanceof $entity)) {
 			return parent::save($entity, $validate, $fieldList);
 		}
