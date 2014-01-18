@@ -101,9 +101,18 @@ class Entity implements ArrayAccess, JsonSerializable {
 			'useSetters' => true,
 			'markClean' => false,
 			'markNew' => null,
-			'guard' => false
+			'guard' => false,
+			'className' => null,
 		);
-		$this->_className = get_class($this);
+
+		// HACK: Entities need to return nested arrays, not sub-arrays like in 3.x
+		if ($options['className']) {
+			$this->_className = $options['className'];
+		} else {
+			$this->_className = get_class($this);
+		}
+		// ENDHACK
+
 		$this->set($properties, array(
 			'setter' => $options['useSetters'],
 			'guard' => $options['guard']

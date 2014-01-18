@@ -281,9 +281,10 @@ class TableTest extends CakeTestCase {
 		$entity = new Entity([
 			'username' => 'superuser',
 			'password' => 'root',
-			'created' => '2013-10-10 00:00',
-			'updated' => '2013-10-10 00:00',
-		]);
+			'created' => '2013-10-10 00:00:00',
+			'updated' => '2013-10-10 00:00:00',
+		], array('className' => 'UserEntity'));
+
 		$table = ClassRegistry::init('UserTable');
 		$this->assertSame($entity, $table->save($entity));
 		$this->assertEquals($entity->id, self::$nextUserId);

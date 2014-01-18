@@ -13,6 +13,7 @@ class Table extends AppModel {
 
 	public function __construct($id = false, $table = null, $ds = null) {
 		parent::__construct($id, $table, $ds);
+		$this->name = $this->alias = $this->alias();
 		$this->entityClass($this->name . 'Entity');
 		$this->initialize(array());
 	}
@@ -72,8 +73,7 @@ class Table extends AppModel {
 		}
 		if ($this->_alias === null) {
 			$alias = get_class($this);
-			$alias = substr($alias, 0, -5) ?: $this->table;
-			$this->_alias = $alias;
+			$this->_alias = preg_replace('/Table$/', '', $alias);
 		}
 		return $this->_alias;
 	}
@@ -514,7 +514,7 @@ class Table extends AppModel {
 			throw new Exception("Method 'newEntity' not fully implemented");
 		}
 
-		$class = $this->entityClass();
+		$class = $className = $this->entityClass();
 
 		if (!class_exists($class)) {
 			App::uses($class, 'Model/Entity');
@@ -523,7 +523,18 @@ class Table extends AppModel {
 			}
 		}
 
-		$entity = new $class($data);
+		$alias = $this->alias();
+		if (!empty($data[$alias]) && !isset($data[$alias][0])) {
+			$entityData = $data[$alias];
+			foreach ($data as $key => $value) {
+				if ($key != $alias) {
+					$entityData[$key] = $value;
+				}
+			}
+			$data = $entityData;
+		}
+
+		$entity = new $class($data, array('className' => $className));
 		return $entity;
 	}
 
