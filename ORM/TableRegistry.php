@@ -17,6 +17,7 @@
 
 App::uses('ConnectionManager', 'Model');
 App::uses('Inflector', 'Utility');
+App::uses('Table', 'Entity.ORM');
 
 /**
  * Provides a registry/factory for Table objects.
