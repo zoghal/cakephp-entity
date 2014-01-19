@@ -210,7 +210,7 @@ class Table extends AppModel {
  * @param array $options The options for the behavior to use.
  * @return void
  */
-    public function addBehavior($name, $options = []) {
+	public function addBehavior($name, $options = []) {
 		$this->Behaviors->load($name, $options);
 	}
 
