@@ -12,10 +12,43 @@ class Table extends AppModel {
 	protected $_savedEntityStates = array();
 
 	public function __construct($id = false, $table = null, $ds = null) {
+		if (is_array($id)) {
+			$alias = Hash::get($id, 'alias') ?: (Hash::get($id, 'table') ?: $this->alias);
+			$id['alias'] = Inflector::singularize(preg_replace('/Table$/', '', $alias));
+			$this->name = $this->alias = $this->alias($id['alias']);
+
+			$schema = Hash::get($id, 'schema');
+			if ($schema !== null) {
+				$this->_schema = $schema;
+			}
+		}
+
+		if ($table === null) {
+			if ($this->name === null) {
+				$this->name = (isset($name) ? $name : get_class($this));
+			}
+
+			if ($this->alias === null) {
+				$this->alias = (isset($alias) ? $alias : $this->name);
+			}
+			$table = Inflector::tableize(preg_replace('/Table$/', '', $this->alias));
+		}
 		parent::__construct($id, $table, $ds);
-		$this->name = $this->alias = $this->alias();
-		$this->entityClass($this->name . 'Entity');
+		$this->entityClass(Inflector::singularize($this->name) . 'Entity');
 		$this->initialize(array());
+	}
+
+/**
+ * Get the default connection name.
+ *
+ * This method is used to get the fallback connection name if an
+ * instance is created through the TableRegistry without a connection.
+ *
+ * @return string
+ * @see Cake\ORM\TableRegistry::get()
+ */
+	public static function defaultConnectionName() {
+		return 'default';
 	}
 
 /**
@@ -46,7 +79,7 @@ class Table extends AppModel {
  */
 	public function table($table = null) {
 		if ($table !== null) {
-			$this->setSource($table);
+			$this->table = $this->useTable = $table;
 		}
 
 		if ($this->table === null) {
@@ -73,7 +106,7 @@ class Table extends AppModel {
 		}
 		if ($this->_alias === null) {
 			$alias = get_class($this);
-			$this->_alias = preg_replace('/Table$/', '', $alias);
+			$this->_alias = Inflector::singularize(preg_replace('/Table$/', '', $alias));
 		}
 		return $this->_alias;
 	}
@@ -423,6 +456,25 @@ class Table extends AppModel {
 		throw new Exception("Method 'validationDefault' not implemented");
 	}
 
+/**
+ * Returns true if there is any row in this table matching the specified
+ * conditions.
+ *
+ * @param array $conditions list of conditions to pass to the query
+ * @return boolean
+ */
+	public function exists($conditions = null) {
+		if (!is_array($conditions)) {
+			return parent::exists($conditions);
+		}
+
+		return (bool)$this->find('count', array(
+			'conditions' => $conditions,
+			'recursive' => -1,
+			'callbacks' => false
+		));
+	}
+
 	public function save($entity = null, $validate = true, $fieldList = array()) {
 		if (!is_object($entity) || !($entity instanceof $entity)) {
 			$success = parent::save($entity, $validate, $fieldList);
@@ -437,6 +489,14 @@ class Table extends AppModel {
 
 		if ($entity->isNew() === false && !$entity->dirty()) {
 			return $entity;
+		}
+
+		if ($this->id != $entity->get($this->primaryKey)) {
+			$this->create();
+		}
+
+		if (!$entity->dirty()) {
+			return false;
 		}
 
 		$isNew = $entity->isNew();
@@ -570,17 +630,19 @@ class Table extends AppModel {
 	}
 
 /**
- *	Convert passed $data structure into coresponding entity object.
+ *  Convert passed $data structure into coresponding entity object.
  *
- *	@param $data Hash to be converted. If omitted, $this->data will be converted.
- *	@return Entity object
+ *  @param $data Hash to be converted. If omitted, $this->data will be converted.
+ *  @return Entity object
  */
 	public function convertToEntity($data) {
 		if (is_null($data) || empty($data[$this->alias]['id'])) {
 			return null;
 		}
 
-		return $this->newEntity($data);
+		$entity = $this->newEntity($data);
+		$entity->isNew(false);
+		return $entity;
 	}
 
 	public function convertToEntities($list) {

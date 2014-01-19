@@ -1,9 +1,10 @@
 <?php
 App::uses('Table', 'Entity.ORM');
 App::uses('Entity', 'Entity.ORM');
+App::uses('TableRegistry', 'Entity.ORM');
 
 /**
- *	Models
+ *  Models
  *
  *  Author --many--> Post --one---> Image
  *                        --many--> Comment
@@ -11,10 +12,17 @@ App::uses('Entity', 'Entity.ORM');
  *
  */
 
-class UserTable extends Table {
+class TestAppTable extends Table {
+
+	public static function defaultConnectionName() {
+		return 'test';
+	}
+
+}
+
+class UsersTable extends TestAppTable {
 
 	public function initialize(array $config) {
-		$this->table('users');
 		$this->entity(true);
 	}
 
@@ -73,7 +81,7 @@ class Post extends TestEntityModel {
 	);
 
 /**
- *	dummy implementation of find().
+ *  dummy implementation of find().
  */
 	public function find($type = 'first', $query = array()) {
 		$result = null;
@@ -142,7 +150,7 @@ class Star extends AppModel {
 }
 
 /**
- *	Entities
+ *  Entities
  */
 
 class AuthorEntity extends Entity {
@@ -246,7 +254,7 @@ class SampleData {
 }
 
 /**
- *	Testcases
+ *  Testcases
  */
 class TableTest extends CakeTestCase {
 
@@ -272,6 +280,154 @@ class TableTest extends CakeTestCase {
 	}
 
 /**
+ * Tests the table method
+ *
+ * @return void
+ */
+	public function testTableMethod() {
+		$table = new Table(['table' => 'users']);
+		$this->assertEquals('users', $table->table());
+
+		$table = new UsersTable;
+		$this->assertEquals('users', $table->table());
+
+		$table = $this->getMockBuilder('Table')
+				->setMethods(['find'])
+				->setMockClassName('SpecialThingsTable')
+				->getMock();
+		$this->assertEquals('special_things', $table->table());
+
+		$table = new Table(['alias' => 'LoveBoats']);
+		$this->assertEquals('love_boats', $table->table());
+
+		$table->table('other');
+		$this->assertEquals('other', $table->table());
+	}
+
+/**
+ * Tests the alias method
+ *
+ * @return void
+ */
+	public function testAliasMethod() {
+		$table = new Table(['alias' => 'Users']);
+		$this->assertEquals('User', $table->alias());
+
+		$table = new Table(['table' => 'stuffs']);
+		$this->assertEquals('stuff', $table->alias());
+
+		$table = new UsersTable;
+		$this->assertEquals('User', $table->alias());
+
+		$table = $this->getMockBuilder('Table')
+				->setMethods(['find'])
+				->setMockClassName('SpecialThingTable')
+				->getMock();
+		$this->assertEquals('SpecialThing', $table->alias());
+
+		$table->alias('AnotherOne');
+		$this->assertEquals('AnotherOne', $table->alias());
+	}
+
+/**
+ * Tests primaryKey method
+ *
+ * @return void
+ */
+	public function testPrimaryKey() {
+		$table = new Table([
+			'table' => 'users',
+			'schema' => [
+				'id' => ['type' => 'integer'],
+				'_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+			]
+		]);
+		$this->assertEquals('id', $table->primaryKey());
+		$table->primaryKey('thingID');
+		$this->assertEquals('thingID', $table->primaryKey());
+
+		$table->primaryKey(['thingID', 'user_id']);
+		$this->assertEquals(['thingID', 'user_id'], $table->primaryKey());
+	}
+
+/**
+ * Tests that name will be selected as a displayField
+ *
+ * @return void
+ */
+	public function testDisplayFieldName() {
+		$table = new Table([
+			'table' => 'users',
+			'schema' => [
+				'foo' => ['type' => 'string'],
+				'name' => ['type' => 'string']
+			]
+		]);
+		$this->assertEquals('name', $table->displayField());
+	}
+/**
+ * Tests that no displayField will fallback to primary key
+ *
+ * @return void
+ */
+	public function testDisplayFallback() {
+		$table = new Table([
+			'table' => 'users',
+			'schema' => [
+				'id' => ['type' => 'string'],
+				'foo' => ['type' => 'string'],
+				'_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+			]
+		]);
+		$this->assertEquals('id', $table->displayField());
+	}
+
+/**
+ * Tests that displayField can be changed
+ *
+ * @return void
+ */
+	public function testDisplaySet() {
+		$table = new Table([
+			'table' => 'users',
+			'schema' => [
+				'id' => ['type' => 'string'],
+				'foo' => ['type' => 'string'],
+				'_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+			]
+		]);
+		$this->assertEquals('id', $table->displayField());
+		$table->displayField('foo');
+		$this->assertEquals('foo', $table->displayField());
+	}
+
+/**
+ * Tests that recently fetched entities are marked as not new
+ *
+ * @return void
+ */
+	public function testFindPersistedEntities() {
+		$table = TableRegistry::get('users');
+		$results = $table->find('all');
+		$this->assertCount(4, $results);
+		foreach ($results as $article) {
+			$this->assertFalse($article->isNew());
+		}
+	}
+
+/**
+ * Tests the exists function
+ *
+ * @return void
+ */
+	public function testExists() {
+		$table = TableRegistry::get('users');
+		$this->assertTrue($table->exists(['id' => 1]));
+		$this->assertFalse($table->exists(['id' => 501]));
+		$this->assertTrue($table->exists(['id' => 3, 'username' => 'larry']));
+	}
+
+/**
  * Tests that it is possible to insert a new row using the save method
  *
  * @group save
@@ -285,11 +441,47 @@ class TableTest extends CakeTestCase {
 			'updated' => '2013-10-10 00:00:00',
 		], array('className' => 'UserEntity'));
 
-		$table = ClassRegistry::init('UserTable');
+		$table = TableRegistry::get('users');
+		$this->assertSame($entity, $table->save($entity));
+		$this->assertEquals(self::$nextUserId, $entity->id);
+
+		$row = $table->find('first', array('conditions' => array('id' => self::$nextUserId)));
+		$this->assertEquals($entity->toArray(), $row->toArray());
+	}
+
+/**
+ * Test that saving a new empty entity does nothing.
+ *
+ * @group save
+ * @return void
+ */
+	public function testSaveNewEmptyEntity() {
+		$entity = new Entity(array(), array('className' => 'UserEntity'));
+		$table = TableRegistry::get('users');
+		$this->assertFalse($table->save($entity));
+	}
+
+/**
+ * Tests that saving an entity will filter out properties that
+ * are not present in the table schema when saving
+ *
+ * @group save
+ * @return void
+ */
+	public function testSaveEntityOnlySchemaFields() {
+		$entity = new Entity([
+			'username' => 'superuser',
+			'password' => 'root',
+			'crazyness' => 'super crazy value',
+			'created' => '2013-10-10 00:00:00',
+			'updated' => '2013-10-10 00:00:00',
+		], array('className' => 'UserEntity'));
+		$table = TableRegistry::get('users');
 		$this->assertSame($entity, $table->save($entity));
 		$this->assertEquals($entity->id, self::$nextUserId);
 
 		$row = $table->find('first', array('conditions' => array('id' => self::$nextUserId)));
+		$entity->unsetProperty('crazyness');
 		$this->assertEquals($entity->toArray(), $row->toArray());
 	}
 
@@ -436,8 +628,8 @@ class TableTest extends CakeTestCase {
 	}
 
 /**
- *	For convenience at debug time, entity is converted into html
- *	when it used as string.
+ *  For convenience at debug time, entity is converted into html
+ *  when it used as string.
  */
 	public function testStringReplesentationOfEntity() {
 		$a = $this->Author->newEntity(array());
