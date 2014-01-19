@@ -21,11 +21,6 @@ class TestAppTable extends Table {
 }
 
 class UsersTable extends TestAppTable {
-
-	public function initialize(array $config) {
-		$this->entity(true);
-	}
-
 }
 
 class TestEntityModel extends Table {
@@ -535,6 +530,7 @@ class TableTest extends CakeTestCase {
 
 	public function testFind() {
 		// 1. Test emulated find()
+		$this->Post->entity(false);
 		$result = $this->Post->find('first');
 		$this->assertTrue(is_array($result));
 		$this->assertEqual($result['Post']['title'], 'Hello');

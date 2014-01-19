@@ -36,6 +36,7 @@ class Table extends AppModel {
 		parent::__construct($id, $table, $ds);
 		$this->entityClass(Inflector::singularize($this->name) . 'Entity');
 		$this->initialize([]);
+		$this->entity(true);
 	}
 
 /**
