@@ -738,33 +738,4 @@ class Table extends AppModel {
 		return parent::set($one, $two);
 	}
 
-	public function paginateCount($conditions, $recursive, $extra) {
-		$parameters = $extra + compact('conditions');
-		if ($recursive != $this->recursive) {
-			$parameters['recursive'] = $recursive;
-		}
-		$parameters['entity'] = false;
-
-		return $this->find('count', $parameters);
-	}
-
-	public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra) {
-		$params = compact('conditions', 'fields', 'order', 'limit', 'page');
-
-		if ($recursive != $this->recursive) {
-			$params['recursive'] = $recursive;
-		}
-
-		$type = !empty($extra['type']) ? $extra['type'] : 'all';
-
-		return $this->find($type, array_merge($params, $extra));
-	}
-
-	public function count($conditions = null) {
-		return $this->find('count', [
-			'conditions' => $conditions,
-			'recursive' => -1
-		]);
-	}
-
 }
