@@ -630,10 +630,10 @@ class Table extends AppModel {
 	}
 
 /**
- *  Convert passed $data structure into coresponding entity object.
+ * Convert passed $data structure into coresponding entity object.
  *
- *  @param $data Hash to be converted. If omitted, $this->data will be converted.
- *  @return Entity object
+ * @param $data Hash to be converted. If omitted, $this->data will be converted.
+ * @return Entity object
  */
 	public function convertToEntity($data) {
 		if (is_null($data) || empty($data[$this->alias]['id'])) {
