@@ -643,6 +643,7 @@ class Table extends AppModel {
 
 		$entity = $this->newEntity($data);
 		$entity->isNew(false);
+		$entity->clean();
 		return $entity;
 	}
 
