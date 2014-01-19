@@ -7,7 +7,7 @@
 - find() now returns array of objects instead of arrays of arrays.
 - 100% compatible with the standard Model.
 - Open source. Available on GitHub. MIT Lisense.
-- CakePHP 2.4+, PHP 5.3+
+- CakePHP 2.4+, PHP 5.4+
 
 Originally: https://github.com/kanshin/CakeEntity
 
@@ -78,7 +78,7 @@ Use `Table` as the super class of models where you would like to activate the pl
 
 ```php
 <?php
-App::uses('Table', 'Entity.Model');
+App::uses('Table', 'Entity.ORM');
 
 class Post extends Table {
 

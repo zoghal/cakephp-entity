@@ -9,7 +9,7 @@ class Table extends AppModel {
 
 	protected $_entityClass = null;
 
-	protected $_savedEntityStates = array();
+	protected $_savedEntityStates = [];
 
 	public function __construct($id = false, $table = null, $ds = null) {
 		if (is_array($id)) {
@@ -35,7 +35,7 @@ class Table extends AppModel {
 		}
 		parent::__construct($id, $table, $ds);
 		$this->entityClass(Inflector::singularize($this->name) . 'Entity');
-		$this->initialize(array());
+		$this->initialize([]);
 	}
 
 /**
@@ -210,7 +210,7 @@ class Table extends AppModel {
  * @param array $options The options for the behavior to use.
  * @return void
  */
-	public function addBehavior() {
+    public function addBehavior($name, $options = []) {
 		$this->Behaviors->load($name, $options);
 	}
 
@@ -273,7 +273,7 @@ class Table extends AppModel {
  * @param array $options list of options to configure the association definition
  * @return Cake\ORM\Association\BelongsTo
  */
-	public function belongsTo($associated, $options = array()) {
+	public function belongsTo($associated, array $options = []) {
 		$this->_bindModel('belongsTo', $associated, $options);
 	}
 
@@ -308,7 +308,7 @@ class Table extends AppModel {
  * @param array $options list of options to configure the association definition
  * @return Cake\ORM\Association\HasOne
  */
-	public function hasOne($associated, $options = array()) {
+	public function hasOne($associated, array $options = []) {
 		$this->_bindModel('hasOne', $associated, $options);
 	}
 
@@ -347,7 +347,7 @@ class Table extends AppModel {
  * @param array $options list of options to configure the association definition
  * @return Cake\ORM\Association\HasMany
  */
-	public function hasMany($associated, $options = array()) {
+	public function hasMany($associated, array $options = []) {
 		$this->_bindModel('hasMany', $associated, $options);
 	}
 
@@ -389,19 +389,19 @@ class Table extends AppModel {
  * @param array $options list of options to configure the association definition
  * @return Cake\ORM\Association\BelongsToMany
  */
-	public function belongsToMany($associated, $options = array()) {
+	public function belongsToMany($associated, array $options = []) {
 		$this->_bindModel('hasAndBelongsToMany', $associated, $options);
 	}
 
-	protected function _bindModel($type, $associated, $options = array()) {
+	protected function _bindModel($type, $associated, array $options = []) {
 		$reset = empty($options['reset']) ? true : false;
 		if (isset($options['reset'])) {
 			unset($options['reset']);
 		}
 
-		return $this->bindModel(array(
-			$type => array($associated => $options)
-		), $reset);
+		return $this->bindModel([
+			$type => [$associated => $options]
+		], $reset);
 	}
 
 /**
@@ -468,14 +468,14 @@ class Table extends AppModel {
 			return parent::exists($conditions);
 		}
 
-		return (bool)$this->find('count', array(
+		return (bool)$this->find('count', [
 			'conditions' => $conditions,
 			'recursive' => -1,
 			'callbacks' => false
-		));
+		]);
 	}
 
-	public function save($entity = null, $validate = true, $fieldList = array()) {
+	public function save($entity = null, $validate = true, $fieldList = []) {
 		if (!is_object($entity) || !($entity instanceof $entity)) {
 			$success = parent::save($entity, $validate, $fieldList);
 			if (!$success) {
@@ -594,7 +594,7 @@ class Table extends AppModel {
 			$data = $entityData;
 		}
 
-		$entity = new $class($data, array('className' => $className));
+		$entity = new $class($data, ['className' => $className]);
 		return $entity;
 	}
 
@@ -650,7 +650,7 @@ class Table extends AppModel {
 			return $this->convertToEntity($list);
 		}
 
-		$result = array();
+		$result = [];
 		foreach ($list as $data) {
 			$result[] = $this->convertToEntity($data);
 		}
@@ -690,12 +690,12 @@ class Table extends AppModel {
 		return $this->entityClass();
 	}
 
-	public function allEntities($params = array()) {
+	public function allEntities($params = []) {
 		$params['entity'] = true;
 		return $this->find('all', $params);
 	}
 
-	public function entities($params = array()) {
+	public function entities($params = []) {
 		return $this->allEntities($params);
 	}
 
@@ -720,7 +720,7 @@ class Table extends AppModel {
 			$method = ($all ? 'findAllBy' : 'findBy') . $matches[2];
 		}
 
-		return array($entity, $method);
+		return [$entity, $method];
 	}
 
 /**
@@ -761,10 +761,10 @@ class Table extends AppModel {
 	}
 
 	public function count($conditions = null) {
-		return $this->find('count', array(
+		return $this->find('count', [
 			'conditions' => $conditions,
 			'recursive' => -1
-		));
+		]);
 	}
 
 }
