@@ -2,7 +2,6 @@
 App::uses('Hash', 'Utility');
 App::uses('ModelValidator', 'Model');
 App::uses('Inflector', 'Utility');
-App::uses('AppEntity', 'Entity.Model/Entity');
 
 class Entity implements ArrayAccess, JsonSerializable {
 
@@ -11,7 +10,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-	protected $_properties = [];
+		protected $_properties = [];
 
 /**
  * List of property names that should **not** be included in JSON or Array
@@ -19,7 +18,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-	protected $_hidden = [];
+		protected $_hidden = [];
 
 /**
  * List of computed or virtual fields that **should** be included in JSON or array
@@ -28,14 +27,14 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-	protected $_virtual = [];
+		protected $_virtual = [];
 
 /**
  * Holds the name of the class for the instance object
  *
  * @var string
  */
-	protected $_className;
+		protected $_className;
 
 /**
  * Holds a list of the properties that were modified or added after this object
@@ -43,14 +42,14 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-	protected $_dirty = [];
+		protected $_dirty = [];
 
 /**
  * Holds a cached list of methods that exist in the instanced class
  *
  * @var array
  */
-	protected static $_accessors = [];
+		protected static $_accessors = [];
 
 /**
  * Indicates whether or not this entity is yet to be persisted.
@@ -58,14 +57,14 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var boolean
  */
-	protected $_new = null;
+		protected $_new = null;
 
 /**
  * List of errors per field as stored in this object
  *
  * @var array
  */
-	protected $_errors = [];
+		protected $_errors = [];
 
 /**
  * Map of properties in this entity that can be safely assigned, each
@@ -78,7 +77,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-	protected $_accessible = [];
+		protected $_accessible = [];
 
 /**
  * Initializes the internal properties of this entity out of the
@@ -97,27 +96,36 @@ class Entity implements ArrayAccess, JsonSerializable {
  * - markNew: whether this instance has not yet been persisted
  * - guard: whether to prevent inaccessible properties from being set (default: false)
  */
-	public function __construct(array $properties = array(), array $options = array()) {
-		$options += array(
-			'useSetters' => true,
-			'markClean' => false,
-			'markNew' => null,
-			'guard' => false
-		);
-		$this->_className = get_class($this);
-		$this->set($properties, array(
-			'setter' => $options['useSetters'],
-			'guard' => $options['guard']
-		));
+		public function __construct(array $properties = array(), array $options = array()) {
+				$options += array(
+						'useSetters' => true,
+						'markClean' => false,
+						'markNew' => null,
+						'guard' => false,
+						'className' => null,
+				);
 
-		if ($options['markClean']) {
-			$this->clean();
-		}
+				// HACK: Entities need to return nested arrays, not sub-arrays like in 3.x
+				if ($options['className']) {
+						$this->_className = $options['className'];
+				} else {
+						$this->_className = get_class($this);
+				}
+				// ENDHACK
 
-		if ($options['markNew'] !== null) {
-			$this->isNew($options['markNew']);
+				$this->set($properties, array(
+						'setter' => $options['useSetters'],
+						'guard' => $options['guard']
+				));
+
+				if ($options['markClean']) {
+						$this->clean();
+				}
+
+				if ($options['markNew'] !== null) {
+						$this->isNew($options['markNew']);
+				}
 		}
-	}
 
 /**
  * Magic getter to access properties that has be set in this entity
@@ -125,9 +133,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $property name of the property to access
  * @return mixed
  */
-	public function &__get($property) {
-		return $this->get($property);
-	}
+		public function &__get($property) {
+				return $this->get($property);
+		}
 
 /**
  * Magic setter to add or edit a property in this entity
@@ -136,9 +144,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param mixed $value the value to set to the property
  * @return void
  */
-	public function __set($property, $value) {
-		$this->set($property, $value);
-	}
+		public function __set($property, $value) {
+				$this->set($property, $value);
+		}
 
 /**
  * Returns whether this entity contains a property named $property
@@ -148,9 +156,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $property
  * @return boolean
  */
-	public function __isset($property) {
-		return $this->has($property);
-	}
+		public function __isset($property) {
+				return $this->has($property);
+		}
 
 /**
  * Removes a property from this entity
@@ -158,9 +166,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $property
  * @return void
  */
-	public function __unset($property) {
-		$this->unsetProperty($property);
-	}
+		public function __unset($property) {
+				$this->unsetProperty($property);
+		}
 
 /**
  * Sets a single property inside this entity.
@@ -213,99 +221,99 @@ class Entity implements ArrayAccess, JsonSerializable {
  * keys are `setter` and `guard`
  * @return Entity
  */
-	public function set($property, $value = null, $options = []) {
-		if (is_string($property)) {
-			$guard = false;
-			$property = [$property => $value];
-		} else {
-			$guard = true;
-			$options = (array)$value;
+		public function set($property, $value = null, $options = []) {
+				if (is_string($property)) {
+						$guard = false;
+						$property = [$property => $value];
+				} else {
+						$guard = true;
+						$options = (array)$value;
+				}
+
+				$options += ['setter' => true, 'guard' => $guard];
+
+				$alias = $this->alias();
+				if (isset($property[$alias])) {
+						foreach ($property[$alias] as $key => $value) {
+								$property[$key] = $value;
+						}
+
+						unset($property[$alias]);
+				}
+
+				foreach ($property as $p => $value) {
+						if ($options['guard'] === true && !$this->accessible($p)) {
+								continue;
+						}
+
+						// HACK: Association support isn't implemented in 3.x
+						// so we implement it here...
+						if (ctype_upper($p[0]) && is_array($value)) {
+								list($p, $value) = $this->_transformIntoEntity($p, $value);
+						} // ENDHACK
+
+						$markDirty = true;
+						if (isset($this->_properties[$p])) {
+								$markDirty = $value !== $this->_properties[$p];
+						}
+
+						if ($markDirty) {
+								$this->dirty($p, true);
+						}
+
+						if (!$options['setter']) {
+								$this->_properties[$p] = $value;
+								continue;
+						}
+
+						$setter = 'set' . Inflector::camelize($p);
+						if ($this->_methodExists($setter)) {
+								$value = $this->{$setter}($value);
+						}
+						$this->_properties[$p] = $value;
+				}
+				return $this;
 		}
 
-		$options += ['setter' => true, 'guard' => $guard];
+		protected function _transformIntoEntity($p, $value) {
+				$_p = Inflector::singularize($p);
+				$className = $_p . 'Entity';
 
-		$alias = $this->alias();
-		if (isset($property[$alias])) {
-			foreach ($property[$alias] as $key => $value) {
-				$property[$key] = $value;
-			}
+				if (empty($value)) {
+						return array($p, $value);
+				}
 
-			unset($property[$alias]);
-		}
+				if (!class_exists($_p)) {
+						App::uses($_p, 'Model');
+						if (!class_exists($_p)) {
+								return array($p, $value);
+						}
+				}
 
-		foreach ($property as $p => $value) {
-			if ($options['guard'] === true && !$this->accessible($p)) {
-				continue;
-			}
+				if (!is_subclass_of($_p, 'Table')) {
+						return array($p, $value);
+				}
 
-			// HACK: Association support isn't implemented in 3.x
-			// so we implement it here...
-			if (ctype_upper($p[0]) && is_array($value)) {
-				list($p, $value) = $this->_transformIntoEntity($p, $value);
-			} // ENDHACK
+				if (!class_exists($className)) {
+						App::uses($className, 'Model/Entity');
+				}
 
-			$markDirty = true;
-			if (isset($this->_properties[$p])) {
-				$markDirty = $value !== $this->_properties[$p];
-			}
+				if (!class_exists($className)) {
+						$className = 'Entity';
+				}
 
-			if ($markDirty) {
-				$this->dirty($p, true);
-			}
+				if (is_array($value) && Hash::numeric(array_keys($value))) {
+						$_value = array();
+						foreach ($value as $sub) {
+								$_value[] = new $className($sub);
+						}
+						$value = $_value;
+				} else {
+						$value = new $className($value);
+				}
 
-			if (!$options['setter']) {
-				$this->_properties[$p] = $value;
-				continue;
-			}
-
-			$setter = 'set' . Inflector::camelize($p);
-			if ($this->_methodExists($setter)) {
-				$value = $this->{$setter}($value);
-			}
-			$this->_properties[$p] = $value;
-		}
-		return $this;
-	}
-
-	protected function _transformIntoEntity($p, $value) {
-		$_p = Inflector::singularize($p);
-		$className = $_p . 'Entity';
-
-		if (empty($value)) {
-			return array($p, $value);
-		}
-
-		if (!class_exists($_p)) {
-			App::uses($_p, 'Model');
-			if (!class_exists($_p)) {
 				return array($p, $value);
-			}
 		}
-
-		if (!is_subclass_of($_p, 'EntityModel')) {
-			return array($p, $value);
-		}
-
-		if (!class_exists($className)) {
-			App::uses($className, 'Model/Entity');
-		}
-
-		if (!class_exists($className)) {
-			$className = 'AppEntity';
-		}
-
-		if (is_array($value) && Hash::numeric(array_keys($value))) {
-			$_value = array();
-			foreach ($value as $sub) {
-				$_value[] = new $className($sub);
-			}
-			$value = $_value;
-		} else {
-			$value = new $className($value);
-		}
-
-		return array($p, $value);
-	}
 
 /**
  * Returns the value of a property by name
@@ -313,22 +321,22 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $property the name of the property to retrieve
  * @return mixed
  */
-	public function &get($property) {
-		$method = 'get' . Inflector::camelize($property);
-		$value = null;
+		public function &get($property) {
+				$method = 'get' . Inflector::camelize($property);
+				$value = null;
 
-		if (isset($this->_properties[$property])) {
-			$value =& $this->_properties[$property];
+				if (isset($this->_properties[$property])) {
+						$value =& $this->_properties[$property];
+				}
+
+				$methodExists = false;
+				if ($this->_methodExists($method)) {
+						$methodExists = true;
+						$value = $this->{$method}($value);
+				}
+
+				return $value;
 		}
-
-		$methodExists = false;
-		if ($this->_methodExists($method)) {
-			$methodExists = true;
-			$value = $this->{$method}($value);
-		}
-
-		return $value;
-	}
 
 /**
  * Returns whether this entity contains a property named $property
@@ -346,9 +354,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $property
  * @return boolean
  */
-	public function has($property) {
-		return $this->get($property) !== null;
-	}
+		public function has($property) {
+				return $this->get($property) !== null;
+		}
 
 /**
  * Removes a property or list of properties from this entity
@@ -362,14 +370,14 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string|array $property
  * @return Entity
  */
-	public function unsetProperty($property) {
-		$property = (array)$property;
-		foreach ($property as $p) {
-			unset($this->_properties[$p]);
-		}
+		public function unsetProperty($property) {
+				$property = (array)$property;
+				foreach ($property as $p) {
+						unset($this->_properties[$p]);
+				}
 
-		return $this;
-	}
+				return $this;
+		}
 
 /**
  * Get/Set the hidden properties on this entity.
@@ -380,13 +388,13 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param null|array Either an array of properties to hide or null to get properties
  * @return array|Entity
  */
-	public function hiddenProperties($properties = null) {
-		if ($properties === null) {
-			return $this->_hidden;
+		public function hiddenProperties($properties = null) {
+				if ($properties === null) {
+						return $this->_hidden;
+				}
+				$this->_hidden = $properties;
+				return $this;
 		}
-		$this->_hidden = $properties;
-		return $this;
-	}
 
 /**
  * Get/Set the virtual properties on this entity.
@@ -397,13 +405,13 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param null|array Either an array of properties to treat as virtual or null to get properties
  * @return array|Entity
  */
-	public function virtualProperties($properties = null) {
-		if ($properties === null) {
-			return $this->_virtual;
+		public function virtualProperties($properties = null) {
+				if ($properties === null) {
+						return $this->_virtual;
+				}
+				$this->_virtual = $properties;
+				return $this;
 		}
-		$this->_virtual = $properties;
-		return $this;
-	}
 
 /**
  * Get the list of visible properties.
@@ -414,11 +422,11 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return array A list of properties that are 'visible' in all
  *     representations.
  */
-	public function visibleProperties() {
-		$properties = array_keys($this->_properties);
-		$properties = array_merge($properties, $this->_virtual);
-		return array_diff($properties, $this->_hidden);
-	}
+		public function visibleProperties() {
+				$properties = array_keys($this->_properties);
+				$properties = array_merge($properties, $this->_virtual);
+				return array_diff($properties, $this->_hidden);
+		}
 
 /**
  * Returns an array with all the properties that have been set
@@ -429,34 +437,41 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @return array
  */
-	public function toArray() {
-		$alias = $this->alias();
-		$result = [$alias => []];
+		public function toArray() {
+				$alias = $this->alias();
+				$result = [$alias => []];
 
-		foreach ($this->visibleProperties() as $property) {
-			$value = $this->get($property);
-			if (is_array($value) && isset($value[0]) && $value[0] instanceof self) {
-				$result[$property] = [];
-				foreach ($value as $k => $entity) {
-					$result[$property][$k] = $entity->toArray()[$entity->alias()];
+				foreach ($this->visibleProperties() as $property) {
+						$value = $this->get($property);
+						if (is_array($value) && isset($value[0]) && $value[0] instanceof self) {
+								$result[$property] = [];
+								foreach ($value as $k => $entity) {
+										$result[$property][$k] = $entity->toArray()[$entity->alias()];
+								}
+						} elseif ($value instanceof self) {
+								$result[$property] = $value->toArray()[$value->alias()];
+						} else {
+								$result[$alias][$property] = $value;
+						}
 				}
-			} elseif ($value instanceof self) {
-				$result[$property] = $value->toArray()[$value->alias()];
-			} else {
-				$result[$alias][$property] = $value;
-			}
+
+				// HACK: Ensure the result is not empty
+				if (empty($result[$alias])) {
+						unset($result[$alias]);
+				}
+				// ENDHACK
+
+				return $result;
 		}
-		return $result;
-	}
 
 /**
  * Returns the properties that will be serialized as JSON
  *
  * @return array
  */
-	public function jsonSerialize() {
-		return $this->toArray();
-	}
+		public function jsonSerialize() {
+				return $this->toArray();
+		}
 
 /**
  * Implements isset($entity);
@@ -464,9 +479,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param mixed $offset
  * @return void
  */
-	public function offsetExists($offset) {
-		return $this->has($offset);
-	}
+		public function offsetExists($offset) {
+				return $this->has($offset);
+		}
 /**
  * Implements $entity[$offset];
  *
@@ -474,9 +489,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return void
  */
 
-	public function &offsetGet($offset) {
-		return $this->get($offset);
-	}
+		public function &offsetGet($offset) {
+				return $this->get($offset);
+		}
 
 /**
  * Implements $entity[$offset] = $value;
@@ -486,9 +501,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return void
  */
 
-	public function offsetSet($offset, $value) {
-		$this->set($offset, $value);
-	}
+		public function offsetSet($offset, $value) {
+				$this->set($offset, $value);
+		}
 
 /**
  * Implements unset($result[$offset);
@@ -496,9 +511,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param mixed $offset
  * @return void
  */
-	public function offsetUnset($offset) {
-		$this->unsetProperty($offset);
-	}
+		public function offsetUnset($offset) {
+				$this->unsetProperty($offset);
+		}
 
 /**
  * Determines whether a method exists in this class
@@ -506,12 +521,12 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string $method the method to check for existence
  * @return boolean true if method exists
  */
-	protected function _methodExists($method) {
-		if (empty(static::$_accessors[$this->_className])) {
-			static::$_accessors[$this->_className] = array_flip(get_class_methods($this));
+		protected function _methodExists($method) {
+				if (empty(static::$_accessors[$this->_className])) {
+						static::$_accessors[$this->_className] = array_flip(get_class_methods($this));
+				}
+				return isset(static::$_accessors[$this->_className][$method]);
 		}
-		return isset(static::$_accessors[$this->_className][$method]);
-	}
 
 /**
  * Returns an array with the requested properties
@@ -521,15 +536,15 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param boolean $onlyDirty Return the requested property only if it is dirty
  * @return array
  */
-	public function extract(array $properties, $onlyDirty = false) {
-		$result = [];
-		foreach ($properties as $property) {
-			if (!$onlyDirty || $this->dirty($property)) {
-				$result[$property] = $this->get($property);
-			}
+		public function extract(array $properties, $onlyDirty = false) {
+				$result = [];
+				foreach ($properties as $property) {
+						if (!$onlyDirty || $this->dirty($property)) {
+								$result[$property] = $this->get($property);
+						}
+				}
+				return $result;
 		}
-		return $result;
-	}
 
 /**
  * Sets the dirty status of a single property. If called with no second
@@ -545,24 +560,24 @@ class Entity implements ArrayAccess, JsonSerializable {
  * for that property
  * @return boolean whether the property was changed or not
  */
-	public function dirty($property = null, $isDirty = null) {
-		if ($property === null) {
-			return !empty($this->_dirty);
-		}
+		public function dirty($property = null, $isDirty = null) {
+				if ($property === null) {
+						return !empty($this->_dirty);
+				}
 
-		if ($isDirty === null) {
-			return isset($this->_dirty[$property]);
-		}
+				if ($isDirty === null) {
+						return isset($this->_dirty[$property]);
+				}
 
-		if (!$isDirty) {
-			unset($this->_dirty[$property]);
-			return false;
-		}
+				if (!$isDirty) {
+						unset($this->_dirty[$property]);
+						return false;
+				}
 
-		$this->_dirty[$property] = true;
-		unset($this->_errors[$property]);
-		return true;
-	}
+				$this->_dirty[$property] = true;
+				unset($this->_errors[$property]);
+				return true;
+		}
 
 /**
  * Sets the entire entity as clean, which means that it will appear as
@@ -571,10 +586,10 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @return void
  */
-	public function clean() {
-		$this->_dirty = [];
-		$this->_errors = [];
-	}
+		public function clean() {
+				$this->_dirty = [];
+				$this->_errors = [];
+		}
 
 /**
  * Returns whether or not this entity has already been persisted.
@@ -589,12 +604,12 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return boolean if it is known whether the entity was already persisted
  * null otherwise
  */
-	public function isNew($new = null) {
-		if ($new === null) {
-			return $this->_new;
+		public function isNew($new = null) {
+				if ($new === null) {
+						return $this->_new;
+				}
+				return $this->_new = (bool)$new;
 		}
-		return $this->_new = (bool)$new;
-	}
 
 /**
  * Validates the internal properties using a validator object. The resulting
@@ -608,9 +623,9 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return boolean
  * @throws Exception Unimplemented
  */
-	public function validate(ModelValidator $validator) {
-		throw new Exception("Missing implementation for 'validate()' method");
-	}
+		public function validate(ModelValidator $validator) {
+				throw new Exception("Missing implementation for 'validate()' method");
+		}
 
 /**
  * Sets the error messages for a field or a list of fields. When called
@@ -641,29 +656,29 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string|array $errors The errors to be set for $field
  * @return array|Entity
  */
-	public function errors($field = null, $errors = null) {
-		if ($field === null) {
-			return $this->_errors;
-		}
+		public function errors($field = null, $errors = null) {
+				if ($field === null) {
+						return $this->_errors;
+				}
 
-		if (is_string($field) && $errors === null) {
-			$errors = isset($this->_errors[$field]) ? $this->_errors[$field] : [];
-			if (!$errors) {
-				$errors = $this->_nestedErrors($field);
-			}
-			return $errors;
-		}
+				if (is_string($field) && $errors === null) {
+						$errors = isset($this->_errors[$field]) ? $this->_errors[$field] : [];
+						if (!$errors) {
+								$errors = $this->_nestedErrors($field);
+						}
+						return $errors;
+				}
 
-		if (!is_array($field)) {
-			$field = [$field => $errors];
-		}
+				if (!is_array($field)) {
+						$field = [$field => $errors];
+				}
 
-		foreach ($field as $f => $error) {
-			$this->_errors[$f] = (array)$error;
-		}
+				foreach ($field as $f => $error) {
+						$this->_errors[$f] = (array)$error;
+				}
 
-		return $this;
-	}
+				return $this;
+		}
 
 /**
  * Auxiliary method for getting errors in nested entities
@@ -671,29 +686,29 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @param string field the field in this entity to check for errors
  * @return array errors in nested entity if any
  */
-	protected function _nestedErrors($field) {
-		if (!isset($this->_properties[$field])) {
-			return [];
-		}
-
-		$value = $this->_properties[$field];
-		$errors = [];
-		if (is_array($value) || $value instanceof \Traversable) {
-			foreach ($value as $k => $v) {
-				if (!($v instanceof self)) {
-					break;
+		protected function _nestedErrors($field) {
+				if (!isset($this->_properties[$field])) {
+						return [];
 				}
-				$errors[$k] = $v->errors();
-			}
-			return $errors;
-		}
 
-		if ($value instanceof self) {
-			return $value->errors();
-		}
+				$value = $this->_properties[$field];
+				$errors = [];
+				if (is_array($value) || $value instanceof \Traversable) {
+						foreach ($value as $k => $v) {
+								if (!($v instanceof self)) {
+										break;
+								}
+								$errors[$k] = $v->errors();
+						}
+						return $errors;
+				}
 
-		return [];
-	}
+				if ($value instanceof self) {
+						return $value->errors();
+				}
+
+				return [];
+		}
 
 /**
  * Stores whether or not a property value can be changed or set in this entity.
@@ -728,38 +743,38 @@ class Entity implements ArrayAccess, JsonSerializable {
  * mark it as protected.
  * @return Entity|boolean
  */
-	public function accessible($property, $set = null) {
-		if ($set === null) {
-			return !empty($this->_accessible[$property]) || !empty($this->_accessible['*']);
+		public function accessible($property, $set = null) {
+				if ($set === null) {
+						return !empty($this->_accessible[$property]) || !empty($this->_accessible['*']);
+				}
+
+				if ($property === '*') {
+						$this->_accessible = array_map(function($p) use ($set) {
+								return (bool)$set;
+						}, $this->_accessible);
+						$this->_accessible['*'] = (bool)$set;
+						return $this;
+				}
+
+				foreach ((array)$property as $prop) {
+						$this->_accessible[$prop] = (bool)$set;
+				}
+
+				return $this;
 		}
 
-		if ($property === '*') {
-			$this->_accessible = array_map(function($p) use ($set) {
-				return (bool)$set;
-			}, $this->_accessible);
-			$this->_accessible['*'] = (bool)$set;
-			return $this;
+		public function __toString() {
+				$html = '<div class="' . $this->_className . '">';
+				foreach ($this->_properties as $key => $val) {
+						$html .= '<strong class="key">' . h($key) . '</strong>' . '<span clas="value">' . h(strval($val)) . '</span>';
+				}
+				$html .= '</div>';
+
+				return $html;
 		}
 
-		foreach ((array)$property as $prop) {
-			$this->_accessible[$prop] = (bool)$set;
+		public function alias() {
+				return str_replace('Entity', '', $this->_className);
 		}
-
-		return $this;
-	}
-
-	public function __toString() {
-		$html = '<div class="' . $this->_className . '">';
-		foreach ($this->_properties as $key => $val) {
-			$html .= '<strong class="key">' . h($key) . '</strong>' . '<span clas="value">' . h(strval($val)) . '</span>';
-		}
-		$html .= '</div>';
-
-		return $html;
-	}
-
-	public function alias() {
-		return str_replace('Entity', '', $this->_className);
-	}
 
 }
