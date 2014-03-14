@@ -90,11 +90,16 @@ Then in the options of the `find`, specify `entity` => true:
 
 ```php
 <?php
-$entity = $this->Post->find('all', array(
-    'conditions' => ...
-    'order' => ...
-    'entity' => true,
-));
+$entity = $this->Post->find('first', array('entity' => true));
+?>
+```
+
+You may also set the `$entity` property on your model to true to return entities:
+
+```php
+<?php
+$this->Post->entity = true; 
+$entity = $this->Post->find('first');
 ?>
 ```
 
