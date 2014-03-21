@@ -4,7 +4,7 @@
 
 ## Background
 
-- find() now returns array of objects instead of arrays of arrays.
+- find() now returns an array of objects instead of arrays of arrays.
 - 100% compatible with the standard Model.
 - Open source. Available on GitHub. MIT Lisense.
 - CakePHP 2.4+, PHP 5.4+
@@ -62,7 +62,7 @@ And then run the `composer update` command to install the dependency.
 
 ### Enable plugin
 
-In 2.0 you need to enable the plugin your `app/Config/bootstrap.php` file:
+In 2.0 you need to enable the plugin in your `app/Config/bootstrap.php` file:
 
     CakePlugin::load('Entity');
 
@@ -71,10 +71,10 @@ If you are already using `CakePlugin::loadAll();`, then this is not necessary.
 ## Usage
 
 CakeEntity doesn't change anything with your current the installation.
-You have to enables the functionality by indicating to use it.
+You'll have to enable the functionality by indicating it be used.
 This is for compatibility reasons.
 
-Use `Table` as the super class of models where you would like to activate the plugin.
+Use `Table` as the super class of models where you'd like to activate the plugin.
 
 ```php
 <?php
@@ -86,7 +86,7 @@ class Post extends Table {
 ?>
 ```
 
-Then in the options of the `find`, specify `entity` => true:
+Then, in the options of the `find`, specify `entity` => true:
 
 ```php
 <?php
@@ -109,7 +109,7 @@ Now the `$result` includes the array of objects (entities).
 
 The `Entity` class is the default class used as the result of objects.
 If there is a class with the model's name + 'Entity', that class is
-uses instead. (i.e. For model "Post", the class "PostEntity" is used)
+used instead. (i.e. For model "Post", the class "PostEntity" is used)
 
 ```php
 <?php
@@ -133,7 +133,7 @@ class PostEntity extends Entity {
 
 ### Array access for Entity object
 
-Entity's property can be accessed using array syntax:
+Entity's property's can be accessed using array syntax:
 
     echo $post['title']; // == $post->title
 
@@ -141,10 +141,10 @@ Array access can also be used with Smarty:
 
     Hello, my name is {$post.author.name|h}.
 
-Array access introduces two important feature:
+Array access introduces two important features:
 
-- access control for security.
-- cache for performance.
+- Access control for security
+- Cache for performance
 
 ### For more information
 
