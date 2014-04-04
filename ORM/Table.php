@@ -637,7 +637,7 @@ class Table extends AppModel {
  * @return Entity object
  */
 	public function convertToEntity($data) {
-		if (is_null($data) || empty($data[$this->alias]['id'])) {
+		if (is_null($data) || empty($data[$this->alias][$this->primaryKey])) {
 			return null;
 		}
 
