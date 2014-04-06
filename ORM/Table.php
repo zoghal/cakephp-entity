@@ -394,6 +394,14 @@ class Table extends AppModel {
 		$this->_bindModel('hasAndBelongsToMany', $associated, $options);
 	}
 
+/**
+ * Table::_bindModel()
+ * 
+ * @param mixed $type
+ * @param mixed $associated
+ * @param mixed $options
+ * @return
+ */
 	protected function _bindModel($type, $associated, array $options = []) {
 		$reset = empty($options['reset']) ? true : false;
 		if (isset($options['reset'])) {
@@ -476,6 +484,14 @@ class Table extends AppModel {
 		]);
 	}
 
+/**
+ * Table::save()
+ * 
+ * @param mixed $entity
+ * @param bool $validate
+ * @param mixed $fieldList
+ * @return
+ */
 	public function save($entity = null, $validate = true, $fieldList = []) {
 		if (!is_object($entity) || !($entity instanceof $entity)) {
 			$success = parent::save($entity, $validate, $fieldList);
@@ -647,6 +663,12 @@ class Table extends AppModel {
 		return $entity;
 	}
 
+/**
+ * Table::convertToEntities()
+ * 
+ * @param mixed $list
+ * @return
+ */
 	public function convertToEntities($list) {
 		if ($list && !Hash::numeric(array_keys($list))) {
 			return $this->convertToEntity($list);
@@ -659,6 +681,12 @@ class Table extends AppModel {
 		return $result;
 	}
 
+/**
+ * Table::beforeFind()
+ * 
+ * @param mixed $queryData
+ * @return
+ */
 	public function beforeFind($queryData) {
 		$this->_saveEntityState();
 
@@ -669,6 +697,13 @@ class Table extends AppModel {
 		return parent::beforeFind($queryData);
 	}
 
+/**
+ * Table::afterFind()
+ * 
+ * @param mixed $results
+ * @param bool $primary
+ * @return
+ */
 	public function afterFind($results, $primary = false) {
 		$results = parent::afterFind($results, $primary);
 
@@ -680,27 +715,62 @@ class Table extends AppModel {
 		return $results;
 	}
 
+/**
+ * Table::_saveEntityState()
+ * 
+ * @return void
+ */
 	protected function _saveEntityState() {
 		$this->_savedEntityStates[] = $this->entity;
 	}
 
+/**
+ * Table::_restoreEntityState()
+ * 
+ * @return void
+ */
 	protected function _restoreEntityState() {
 		$this->entity = array_pop($this->_savedEntityStates);
 	}
 
+/**
+ * Table::_entityClassForData()
+ * 
+ * @param mixed $data
+ * @return
+ */
 	protected function _entityClassForData($data) {
 		return $this->entityClass();
 	}
 
+/**
+ * Table::allEntities()
+ * 
+ * @param mixed $params
+ * @return
+ */
 	public function allEntities($params = []) {
 		$params['entity'] = true;
 		return $this->find('all', $params);
 	}
 
+/**
+ * Table::entities()
+ * 
+ * @param mixed $params
+ * @return
+ */
 	public function entities($params = []) {
 		return $this->allEntities($params);
 	}
 
+/**
+ * Table::__call()
+ * 
+ * @param mixed $method
+ * @param mixed $params
+ * @return
+ */
 	public function __call($method, $params) {
 		list($entity, $method) = $this->_analyzeMethodName($method);
 
@@ -713,6 +783,12 @@ class Table extends AppModel {
 		return $return;
 	}
 
+/**
+ * Table::_analyzeMethodName()
+ * 
+ * @param mixed $method
+ * @return
+ */
 	protected function _analyzeMethodName($method) {
 		$entity = false;
 
