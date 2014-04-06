@@ -5,8 +5,8 @@
     "type": "Core/Lib",
     "homepage": "https://github.com/RitaCo/cakephp-entity",
     "author": [
-            "Jose Diaz-Gonzalez <email@josediazgonzalez.com> (https://github.com/josegonzalez)
-			"Mohammad Saleh Souzanchi <saleh.souzanchi@gmail.com> (http://soozanchi.ir/)",
+            "Jose Diaz-Gonzalez <email@josediazgonzalez.com> (https://github.com/josegonzalez)",
+			"Mohammad Saleh Souzanchi <saleh.souzanchi@gmail.com> (http://soozanchi.ir/)"
     ],
     "contributors": [],
     "keywords": [],
