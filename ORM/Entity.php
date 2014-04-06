@@ -3,14 +3,14 @@ App::uses('Hash', 'Utility');
 App::uses('ModelValidator', 'Model');
 App::uses('Inflector', 'Utility');
 
-class Entity implements ArrayAccess, JsonSerializable {
+class Entity implements ArrayAccess {
 
 /**
  * Holds all properties and their values for this entity
  *
  * @var array
  */
-		protected $_properties = [];
+		protected $_properties = array();
 
 /**
  * List of property names that should **not** be included in JSON or Array
@@ -18,7 +18,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-		protected $_hidden = [];
+		protected $_hidden = array();
 
 /**
  * List of computed or virtual fields that **should** be included in JSON or array
@@ -27,7 +27,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-		protected $_virtual = [];
+		protected $_virtual = array();
 
 /**
  * Holds the name of the class for the instance object
@@ -42,14 +42,14 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-		protected $_dirty = [];
+		protected $_dirty = array();
 
 /**
  * Holds a cached list of methods that exist in the instanced class
  *
  * @var array
  */
-		protected static $_accessors = [];
+		protected static $_accessors = array();
 
 /**
  * Indicates whether or not this entity is yet to be persisted.
@@ -64,7 +64,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-		protected $_errors = [];
+		protected $_errors = array();
 
 /**
  * Map of properties in this entity that can be safely assigned, each
@@ -77,7 +77,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  *
  * @var array
  */
-		protected $_accessible = [];
+		protected $_accessible = array();
 
 /**
  * Initializes the internal properties of this entity out of the
@@ -221,16 +221,16 @@ class Entity implements ArrayAccess, JsonSerializable {
  * keys are `setter` and `guard`
  * @return Entity
  */
-		public function set($property, $value = null, $options = []) {
+		public function set($property, $value = null, $options = array()) {
 				if (is_string($property)) {
 						$guard = false;
-						$property = [$property => $value];
+						$property = array($property => $value);
 				} else {
 						$guard = true;
 						$options = (array)$value;
 				}
 
-				$options += ['setter' => true, 'guard' => $guard];
+				$options += array('setter' => true, 'guard' => $guard);
 
 				$alias = $this->alias();
 				if (isset($property[$alias])) {
@@ -439,17 +439,19 @@ class Entity implements ArrayAccess, JsonSerializable {
  */
 		public function toArray() {
 				$alias = $this->alias();
-				$result = [$alias => []];
+				$result = array($alias => array());
 
 				foreach ($this->visibleProperties() as $property) {
 						$value = $this->get($property);
 						if (is_array($value) && isset($value[0]) && $value[0] instanceof self) {
-								$result[$property] = [];
+								$result[$property] = array();
 								foreach ($value as $k => $entity) {
-										$result[$property][$k] = $entity->toArray()[$entity->alias()];
+										$temp = $entity->toArray();
+										$result[$property][$k] = $temp[$entity->alias()];
 								}
 						} elseif ($value instanceof self) {
-								$result[$property] = $value->toArray()[$value->alias()];
+								$temp = $value->toArray();
+								$result[$property] = $temp[$value->alias()];
 						} else {
 								$result[$alias][$property] = $value;
 						}
@@ -537,7 +539,7 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return array
  */
 		public function extract(array $properties, $onlyDirty = false) {
-				$result = [];
+				$result = array();
 				foreach ($properties as $property) {
 						if (!$onlyDirty || $this->dirty($property)) {
 								$result[$property] = $this->get($property);
@@ -587,8 +589,8 @@ class Entity implements ArrayAccess, JsonSerializable {
  * @return void
  */
 		public function clean() {
-				$this->_dirty = [];
-				$this->_errors = [];
+				$this->_dirty = array();
+				$this->_errors = array();
 		}
 
 /**
@@ -662,7 +664,7 @@ class Entity implements ArrayAccess, JsonSerializable {
 				}
 
 				if (is_string($field) && $errors === null) {
-						$errors = isset($this->_errors[$field]) ? $this->_errors[$field] : [];
+						$errors = isset($this->_errors[$field]) ? $this->_errors[$field] : array();
 						if (!$errors) {
 								$errors = $this->_nestedErrors($field);
 						}
@@ -688,11 +690,11 @@ class Entity implements ArrayAccess, JsonSerializable {
  */
 		protected function _nestedErrors($field) {
 				if (!isset($this->_properties[$field])) {
-						return [];
+						return array();
 				}
 
 				$value = $this->_properties[$field];
-				$errors = [];
+				$errors = array();
 				if (is_array($value) || $value instanceof \Traversable) {
 						foreach ($value as $k => $v) {
 								if (!($v instanceof self)) {
@@ -707,7 +709,7 @@ class Entity implements ArrayAccess, JsonSerializable {
 						return $value->errors();
 				}
 
-				return [];
+				return array();
 		}
 
 /**
@@ -763,6 +765,11 @@ class Entity implements ArrayAccess, JsonSerializable {
 				return $this;
 		}
 
+/**
+ * Entity::__toString()
+ * 
+ * @return
+ */
 		public function __toString() {
 				$html = '<div class="' . $this->_className . '">';
 				foreach ($this->_properties as $key => $val) {
@@ -773,6 +780,11 @@ class Entity implements ArrayAccess, JsonSerializable {
 				return $html;
 		}
 
+/**
+ * Entity::alias()
+ * 
+ * @return
+ */
 		public function alias() {
 				return str_replace('Entity', '', $this->_className);
 		}
