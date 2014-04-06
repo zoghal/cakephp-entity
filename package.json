@@ -1,0 +1,36 @@
+{
+    "name": "Entity",
+    "version": "7.0.1",
+    "description": "Rita Entity Tabel",
+    "type": "Core/Lib",
+    "homepage": "https://github.com/RitaCo/cakephp-entity",
+    "author": [
+            "Jose Diaz-Gonzalez <email@josediazgonzalez.com> (https://github.com/josegonzalez)
+			"Mohammad Saleh Souzanchi <saleh.souzanchi@gmail.com> (http://soozanchi.ir/)",
+    ],
+    "contributors": [],
+    "keywords": [],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RitaCo/cakephp-entity.git"
+    },
+    "bugs": {
+        "url": "https://github.com/RitaCo/cakephp-entity/issues"
+    },
+    "licenses" : [
+        {
+            "type" : "MIT"
+        }
+    ],
+    "devDependencies": {
+    },
+    "require": {
+        "php": ">=5.2.0",
+        "cakephp": "2.5.*",
+        "rita": "*"
+    },
+    "extra": {
+        "event": [],
+        "block": []
+    }
+}
