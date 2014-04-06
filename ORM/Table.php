@@ -821,10 +821,10 @@ class Table extends AppModel {
  * 
  * @return
  */
-	protected function _EntityClassLocation(){
+	protected function _entityClassLocation() {
 		$location = 'Model/Entity';
 		if ($this->plugin !== null) {
-			$location = $this->plugin . '.' . $location;	
+			$location = $this->plugin . '.' . $location;
 		}
 		return $location;
 	}
