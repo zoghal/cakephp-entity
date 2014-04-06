@@ -402,6 +402,7 @@ class Table extends AppModel {
  * @param mixed $options
  * @return
  */
+	protected function _bindModel($type, $associated, array $options = array()) {
 		$reset = empty($options['reset']) ? true : false;
 		if (isset($options['reset'])) {
 			unset($options['reset']);
@@ -480,7 +481,7 @@ class Table extends AppModel {
 			'conditions' => $conditions,
 			'recursive' => -1,
 			'callbacks' => false
-		);
+		));
 	}
 
 /**
@@ -675,7 +676,7 @@ class Table extends AppModel {
 
 		$result = array();
 		foreach ($list as $data) {
-			$resultarray() = $this->convertToEntity($data);
+			$result[] = $this->convertToEntity($data);
 		}
 		return $result;
 	}
@@ -759,6 +760,7 @@ class Table extends AppModel {
  * @param mixed $params
  * @return
  */
+	public function entities($params = array()) {
 		return $this->allEntities($params);
 	}
 
