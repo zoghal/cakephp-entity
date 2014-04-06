@@ -182,7 +182,7 @@ class Table extends AppModel {
 		}
 
 		if ($name !== null) {
-			App::uses($name, 'Model/Entity');
+			App::uses($name, $this->_EntityClassLocation());
 			$this->_entityClass = $name;
 		}
 
@@ -594,7 +594,7 @@ class Table extends AppModel {
 		$class = $className = $this->entityClass();
 
 		if (!class_exists($class)) {
-			App::uses($class, 'Model/Entity');
+			App::uses($class, $this->_EntityClassLocation());
 			if (!class_exists($class)) {
 				$class = 'Entity';
 			}
@@ -816,4 +816,16 @@ class Table extends AppModel {
 		return parent::set($one, $two);
 	}
 
+/**
+ * Table::_EntityClassLocation()
+ * 
+ * @return
+ */
+	protected function _EntityClassLocation(){
+		$location = 'Model/Entity';
+		if ($this->plugin === null) {
+			$location = $this->plugin . '.' . $location;	
+		}
+		return $location;
+	}
 }
