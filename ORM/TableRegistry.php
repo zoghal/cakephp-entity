@@ -58,14 +58,14 @@ class TableRegistry {
  *
  * @var array
  */
-	protected static $_config = [];
+	protected static $_config = array();
 
 /**
  * Instances that belong to the registry.
  *
  * @var array
  */
-	protected static $_instances = [];
+	protected static $_instances = array();
 
 /**
  * Stores a list of options to be used when instantiating an object
@@ -91,7 +91,7 @@ class TableRegistry {
 			return static::$_config = $alias;
 		}
 		if ($options === null) {
-			return isset(static::$_config[$alias]) ? static::$_config[$alias] : [];
+			return isset(static::$_config[$alias]) ? static::$_config[$alias] : array();
 		}
 		if (isset(static::$_instances[$alias])) {
 			throw new RuntimeException(sprintf(
@@ -132,7 +132,7 @@ class TableRegistry {
  * @return Cake\Database\Table
  * @throws RuntimeException When you try to configure an alias that already exists.
  */
-	public static function get($alias, $options = []) {
+	public static function get($alias, $options = array()) {
 		$exists = isset(static::$_instances[$alias]);
 		if ($exists && !empty($options)) {
 			throw new RuntimeException(sprintf(
@@ -145,7 +145,7 @@ class TableRegistry {
 		}
 
 		list($plugin, $baseClass) = pluginSplit($alias);
-		$options = ['alias' => $baseClass] + $options;
+		$options = array('alias' => $baseClass) + $options;
 
 		if (empty($options['className'])) {
 			$class = Inflector::camelize($alias);
@@ -200,8 +200,8 @@ class TableRegistry {
  * @return void
  */
 	public static function clear() {
-		static::$_instances = [];
-		static::$_config = [];
+		static::$_instances = array();
+		static::$_config = array();
 	}
 
 }
