@@ -17,20 +17,12 @@
     "bugs": {
         "url": "https://github.com/RitaCo/cakephp-entity/issues"
     },
-    "licenses" : [
-        {
-            "type" : "MIT"
-        }
-    ],
+    "licenses" : "MIT",
     "devDependencies": {
     },
     "require": {
-        "php": ">=5.2.0",
-        "cakephp": "2.5.*",
-        "rita": "*"
-    },
-    "extra": {
-        "event": [],
-        "block": []
+        "php": ">=5.3.0",
+        "rita": "7.0.0"
     }
+
 }
